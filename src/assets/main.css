@@ -10,6 +10,21 @@
   /* font-size: large; */
   /* overflow: hidden; */
 }
+/* Override toast container styles */
+.Vue-Toastification__container {
+  /* your styles */
+}
+
+/* Override toast styles */
+.Vue-Toastification__toast--error {
+  background-color: #ef4444;
+  /* other styles */
+}
+
+.Vue-Toastification__toast--success {
+  background-color: #22c55e;
+  /* other styles */
+}
 
 /* a,
 .green {
