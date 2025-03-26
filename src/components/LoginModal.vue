@@ -37,6 +37,10 @@ const handleLogin = async () => {
   } catch (e) {
     error.value = e.message
     toast.error(e.message, { timeout: 5000 })
+    formData.value = {
+      email: '',
+      password: ''
+    }
   } finally {
     loading.value = false
   }
@@ -88,7 +92,9 @@ const handleLogin = async () => {
           class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
           required
         >
-
+        <!-- Confirm user is not a robot -->
+        
+        
         <button
           type="submit"
           :disabled="loading"

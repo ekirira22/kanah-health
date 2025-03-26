@@ -12,12 +12,15 @@ import {
   EllipsisVerticalIcon
 } from '@heroicons/vue/24/outline'
 
+import VueCircleProgress from 'vue3-circle-progress'
 
 const toast = useToast()
 const router = useRouter()
 const showMobileMenu = ref(false)
+const progress = ref(75)
 const userData = ref({
-  length: 0,
+  length: 39.9,
+  weight: 1.32,
   name: '',
   email: '',
   avatar: '',
@@ -47,7 +50,7 @@ onMounted(async () => {
   const firstName = profileData.session.user.user_metadata.name?.split(" ")[0];
 
   if (error) toast.error(error.message)
-  else toast.success(`Welcome to your Dashboard ${firstName}`)
+  // else toast.success(`Welcome to your Dashboard ${firstName}`)
 
 })
 
@@ -103,13 +106,24 @@ onMounted(async () => {
         <div class="bg-white rounded-lg p-6 mb-6">
           <div class="relative w-48 h-48 mx-auto">
             <!-- Replace with actual progress circle component -->
-            <div class="absolute inset-0 flex items-center justify-center">
+            <div class="absolute inset-0 flex items-center justify-center" id="content">
               <div class="text-center">
                 <div class="text-lg font-bold">Length</div>
                 <div class="text-orange-500 text-2xl">{{ userData.length }}</div>
                 <div class="text-gray-500">Weight: {{ userData.weight }}</div>
               </div>
             </div>
+            <VueCircleProgress
+              :percent="progress"
+              :size="200"
+              :border-width="20"
+              :border-bg-width="20"
+              empty-color="#E5E7EB"
+              :fill-color="['#F97316']"
+            >
+              <template #content>
+              </template>
+            </VueCircleProgress>
           </div>
         </div>
 
