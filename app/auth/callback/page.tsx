@@ -34,6 +34,10 @@ export default function AuthCallback() {
           throw new Error("No session found")
         }
 
+        if (!session?.user?.email) {
+          throw new Error("No email found in session")
+        }
+
         // Handle different auth types
         switch (type) {
           case 'recovery':
@@ -69,7 +73,7 @@ export default function AuthCallback() {
               const { data: motherRecord } = await supabase
                 .from("mothers")
                 .select("id")
-                .eq("user_id", existingUser.id)
+                .eq("user_id", existingUser.id as string)
                 .single()
 
               if (motherRecord) {

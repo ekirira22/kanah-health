@@ -58,12 +58,7 @@ export async function middleware(req: NextRequest) {
     return res
   }
 
-  // Set session cookie
-  const response = NextResponse.next()
-  const supabaseClient = createMiddlewareClient({ req, res: response })
-  await supabaseClient.auth.getSession() // This sets the session cookie
-
-  return response
+  return res
 }
 
 export const config = {
