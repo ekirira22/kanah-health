@@ -14,18 +14,53 @@ export default function BirthType() {
   const [isLoading, setIsLoading] = useState(false)
   const [isVerified, setIsVerified] = useState(false)
 
-  useEffect(() => {
-    checkEmailVerification()
-  }, [])
-
   const checkEmailVerification = async () => {
-    const supabase = getSupabaseClient()
-    const { data: { session } } = await supabase.auth.getSession()
-    
-    if (session?.user?.email_confirmed_at) {
-      setIsVerified(true)
+    try {
+      const supabase = getSupabaseClient()
+      // First refresh the session to get latest data
+      const { data: { session: refreshedSession } } = await supabase.auth.refreshSession()
+      
+      if (refreshedSession?.user?.email_confirmed_at) {
+        setIsVerified(true)
+        toast({
+          title: "Email Verified!",
+          description: "You can now complete your registration.",
+        })
+        return true
+      }
+
+      // If no refreshed session, try getting current session
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session?.user?.email_confirmed_at) {
+        setIsVerified(true)
+        toast({
+          title: "Email Verified!",
+          description: "You can now complete your registration.",
+        })
+        return true
+      }
+
+      return false
+    } catch (error) {
+      console.error("Error checking email verification:", error)
+      return false
     }
   }
+
+  useEffect(() => {
+    // Initial check
+    checkEmailVerification()
+
+    // Set up polling
+    const interval = setInterval(async () => {
+      const verified = await checkEmailVerification()
+      if (verified) {
+        clearInterval(interval)
+      }
+    }, 3000)
+
+    return () => clearInterval(interval)
+  }, [])
 
   const handleNext = async () => {
     if (!selectedType) {
@@ -138,7 +173,11 @@ export default function BirthType() {
               </div>
             </div>
 
-            {!isVerified && (
+            {isVerified ? (
+              <div className="bg-green-50 border border-green-200 text-green-800 p-3 rounded-md text-sm">
+                Your email is verified! You can now complete registration.
+              </div>
+            ) : (
               <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 p-3 rounded-md text-sm">
                 Please verify your email to continue. Check your inbox for the verification link.
               </div>
@@ -150,7 +189,7 @@ export default function BirthType() {
               </Button>
               <Button 
                 onClick={handleNext} 
-                disabled={isLoading || !selectedType || !isVerified} 
+                disabled={isLoading || !selectedType} 
                 className="flex-1"
               >
                 {isLoading ? "Completing Registration..." : "Complete Registration"}

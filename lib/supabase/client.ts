@@ -1,20 +1,16 @@
-import { createClient } from '@supabase/supabase-js'
+import { createPagesBrowserClient } from '@supabase/auth-helpers-nextjs'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
 // Create a singleton instance for the client side
-let supabaseClient: ReturnType<typeof createClient> | null = null
+let supabaseClient: ReturnType<typeof createPagesBrowserClient> | null = null
 
 export const getSupabaseClient = () => {
   if (!supabaseClient) {
-    supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
-      auth: {
-        persistSession: true,
-        autoRefreshToken: true,
-        detectSessionInUrl: true,
-        storage: window.localStorage
-      }
+    supabaseClient = createPagesBrowserClient({
+      supabaseUrl,
+      supabaseKey: supabaseAnonKey
     })
   }
   return supabaseClient
