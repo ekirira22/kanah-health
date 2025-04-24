@@ -149,6 +149,12 @@ export default function MotherDetails() {
 
         <div className="py-8">
           <h1 className="text-2xl font-bold text-primary text-center mb-2">Your Details</h1>
+          <div className="flex items-center justify-between mb-6">
+            <p className="text-sm text-muted-foreground">Step 2 of 4</p>
+            <div className="w-full max-w-[200px] h-2 bg-gray-200 rounded-full ml-4">
+              <div className="h-full bg-primary rounded-full" style={{ width: "50%" }}></div>
+            </div>
+          </div>
           <p className="text-center text-muted-foreground mb-6">Tell us about yourself</p>
 
           <div className="space-y-4">

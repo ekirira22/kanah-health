@@ -37,15 +37,6 @@ export default function BirthType() {
       return
     }
 
-    if (!isVerified) {
-      toast({
-        title: "Email Verification Required",
-        description: "Please verify your email before continuing. Check your inbox for the verification link.",
-        variant: "destructive",
-      })
-      return
-    }
-
     setIsLoading(true)
 
     try {
@@ -54,28 +45,27 @@ export default function BirthType() {
       const email = sessionStorage.getItem("temp_mother_email")
       const location = sessionStorage.getItem("temp_mother_location")
       const authUserId = sessionStorage.getItem("temp_auth_user_id")
+      const phoneNumber = sessionStorage.getItem("temp_phone_number")
+      const babyBirthDate = sessionStorage.getItem("temp_baby_birth_date")
 
-      if (!fullName || !email || !location || !authUserId) {
+      if (!fullName || !email || !location || !authUserId || !phoneNumber || !babyBirthDate) {
         throw new Error("Missing user information. Please start the registration process again.")
       }
 
       // Create user in custom table
       await createNewUser({
         authUserId,
-        phoneNumber: sessionStorage.getItem("temp_phone_number") || "",
+        phoneNumber,
         fullName,
         email,
         location,
         birthType: selectedType === "natural" ? "vaginal" : "c_section",
-        babyBirthDate: new Date().toISOString(),
+        babyBirthDate,
         language: "english"
       })
 
       // Clear temporary storage
-      sessionStorage.removeItem("temp_mother_name")
-      sessionStorage.removeItem("temp_mother_email")
-      sessionStorage.removeItem("temp_mother_location")
-      sessionStorage.removeItem("temp_auth_user_id")
+      sessionStorage.clear()
 
       toast({
         title: "Registration Complete",
@@ -109,25 +99,43 @@ export default function BirthType() {
 
         <div className="py-8">
           <h1 className="text-2xl font-bold text-primary text-center mb-2">Birth Type</h1>
-          <p className="text-center text-muted-foreground mb-6">Select your preferred birth type</p>
+          <div className="flex items-center justify-between mb-6">
+            <p className="text-sm text-muted-foreground">Step 4 of 4</p>
+            <div className="w-full max-w-[200px] h-2 bg-gray-200 rounded-full ml-4">
+              <div className="h-full bg-primary rounded-full" style={{ width: "100%" }}></div>
+            </div>
+          </div>
+          <p className="text-center text-muted-foreground mb-6">How was your baby born?</p>
 
           <div className="space-y-4">
-            <div className="flex flex-col gap-3">
-              <Button
-                variant={selectedType === "natural" ? "default" : "outline"}
-                className="w-full py-8"
+            <div className="grid gap-4">
+              <div
+                className={`p-6 rounded-lg border-2 transition-all cursor-pointer ${
+                  selectedType === "natural"
+                    ? "border-primary bg-primary/5"
+                    : "border-gray-200 hover:border-primary/50"
+                }`}
                 onClick={() => setSelectedType("natural")}
               >
-                Natural Birth
-              </Button>
+                <h3 className="text-lg font-semibold mb-2">Vaginal Birth</h3>
+                <p className="text-sm text-muted-foreground">
+                  A natural birth through the birth canal
+                </p>
+              </div>
 
-              <Button
-                variant={selectedType === "cesarean" ? "default" : "outline"}
-                className="w-full py-8"
+              <div
+                className={`p-6 rounded-lg border-2 transition-all cursor-pointer ${
+                  selectedType === "cesarean"
+                    ? "border-primary bg-primary/5"
+                    : "border-gray-200 hover:border-primary/50"
+                }`}
                 onClick={() => setSelectedType("cesarean")}
               >
-                Cesarean Birth
-              </Button>
+                <h3 className="text-lg font-semibold mb-2">C-Section</h3>
+                <p className="text-sm text-muted-foreground">
+                  A surgical procedure to deliver the baby
+                </p>
+              </div>
             </div>
 
             {!isVerified && (

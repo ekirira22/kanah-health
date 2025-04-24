@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { LanguageToggle } from "@/components/language-toggle"
 import { sendOTP, verifyOTP } from "@/lib/auth-utils"
+import { useToast } from "@/components/ui/use-toast"
+import { ChevronLeft } from "lucide-react"
 
 export default function PhoneVerification() {
   const router = useRouter()
@@ -14,6 +16,7 @@ export default function PhoneVerification() {
   const [otp, setOtp] = useState(["", "", "", ""])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
+  const { toast } = useToast()
 
   const handleSendOTP = async () => {
     if (!phoneNumber || phoneNumber.length < 10) {
@@ -109,16 +112,27 @@ export default function PhoneVerification() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-6 bg-secondary/30">
       <div className="w-full max-w-md bg-white rounded-lg shadow-sm p-6 relative">
+        <div className="absolute top-4 left-4">
+          <Button
+            variant="ghost"
+            className="flex items-center gap-2"
+            onClick={() => router.push("/")}
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Back
+          </Button>
+        </div>
+
         <div className="absolute top-4 right-4">
           <LanguageToggle />
         </div>
 
         <div className="py-8">
-          <h1 className="text-2xl font-bold text-primary text-center mb-2">Let&apos;s get to know you</h1>
+          <h1 className="text-2xl font-bold text-primary text-center mb-2">Welcome to Kanah Health</h1>
           <div className="flex items-center justify-between mb-6">
-            <p className="text-sm text-muted-foreground">Step 1 of 3</p>
+            <p className="text-sm text-muted-foreground">Step 1 of 4</p>
             <div className="w-full max-w-[200px] h-2 bg-gray-200 rounded-full ml-4">
-              <div className="h-full bg-primary rounded-full" style={{ width: "33%" }}></div>
+              <div className="h-full bg-primary rounded-full" style={{ width: "25%" }}></div>
             </div>
           </div>
 
