@@ -1,20 +1,23 @@
 "use client"
 
 import { useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { getSupabaseClient } from "@/lib/supabase/client"
 import { toast } from "@/components/ui/use-toast"
 
 export default function AuthCallback() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const token = searchParams.get('token')
 
   useEffect(() => {
     const run = async () => {
       const supabase = getSupabaseClient()
-      // Wait for the session to be restored automatically by Supabase
-      const { data: { session }, error } = await supabase.auth.getSession()
+      
+      // Get the current session
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
 
-      if (error || !session) {
+      if (sessionError || !session) {
         toast({
           title: "Verification failed",
           description: "Something went wrong. Please try logging in again.",
@@ -24,22 +27,47 @@ export default function AuthCallback() {
         return
       }
 
-      toast({
-        title: "Welcome back!",
-        description: "You're now logged in.",
-      })
+      // If we have a token, this is an email verification
+      if (token) {
+        // Update the user's email_verified status
+        const { error: updateError } = await supabase
+          .from('users')
+          .update({ email_verified: true })
+          .eq('id', session.user.id)
 
-      router.push("/dashboard") // Always redirect to dashboard
+        if (updateError) {
+          toast({
+            title: "Verification failed",
+            description: "Could not verify your email. Please try again.",
+            variant: "destructive",
+          })
+          router.push("/login")
+          return
+        }
+
+        toast({
+          title: "Email verified!",
+          description: "Your email has been successfully verified.",
+        })
+
+        // Close the window after a short delay to show the success message
+        setTimeout(() => {
+          window.close()
+        }, 1500)
+        return
+      }
+
+      router.push("/dashboard")
     }
 
     run()
-  }, [router])
+  }, [router, token])
 
   return (
     <main className="flex min-h-screen items-center justify-center">
       <div className="text-center">
-        <h1 className="text-2xl font-semibold mb-2">Logging you in...</h1>
-        <p className="text-muted-foreground">Please wait while we complete your sign-in.</p>
+        <h1 className="text-2xl font-semibold mb-2">Processing your request...</h1>
+        <p className="text-muted-foreground">Please wait while we complete the process.</p>
       </div>
     </main>
   )

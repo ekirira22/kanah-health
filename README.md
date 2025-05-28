@@ -1,30 +1,105 @@
-# Comprehensive app design
+# Kanah Health
 
-*Automatically synced with your [v0.dev](https://v0.dev) deployments*
+A comprehensive postnatal health companion platform designed specifically for mothers in Kenya. This Next.js application provides essential health services and support during the postnatal journey.
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/teveertechs-projects/v0-comprehensive-app-design)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.dev-black?style=for-the-badge)](https://v0.dev/chat/projects/zMvSgJZtFnt)
+## Features
 
-## Overview
+- **Symptom Checker**: Monitor and track postnatal symptoms
+- **Baby Growth Tracking**: Track your baby's development milestones
+- **Health Tips**: Access valuable health information and guidance
+- **Consultations**: Schedule and manage healthcare consultations
+- **Call Nurse**: Direct access to nursing support
+- **Multi-language Support**: Available in multiple languages
+- **User Authentication**: Secure login and signup system
+- **Personalized Dashboard**: Track your health journey
 
-This repository will stay in sync with your deployed chats on [v0.dev](https://v0.dev).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.dev](https://v0.dev).
+## Tech Stack
 
-## Deployment
+- **Framework**: Next.js 15.2.4
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **UI Components**: Radix UI
+- **Authentication**: Supabase Auth
+- **Database**: Supabase
+- **Form Handling**: React Hook Form with Zod validation
+- **State Management**: React Context
+- **Charts**: Recharts
+- **Date Handling**: date-fns
 
-Your project is live at:
+## Getting Started
 
-**[https://vercel.com/teveertechs-projects/v0-comprehensive-app-design](https://vercel.com/teveertechs-projects/v0-comprehensive-app-design)**
+### Prerequisites
 
-## Build your app
+- Node.js (Latest LTS version recommended)
+- pnpm (Package manager)
+- Supabase account and project
 
-Continue building your app on:
+### Installation
 
-**[https://v0.dev/chat/projects/zMvSgJZtFnt](https://v0.dev/chat/projects/zMvSgJZtFnt)**
+1. Clone the repository:
+```bash
+git clone `https://github.com/ekirira22/kanah-health.git`
+cd kanah-health
+```
 
-## How It Works
+2. Install dependencies:
+```bash
+pnpm install
+```
 
-1. Create and modify your project using [v0.dev](https://v0.dev)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+3. Set up environment variables:
+Create a `.env.local` file in the root directory with the following variables:
+```
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+4. Run the development server:
+```bash
+pnpm dev
+```
+
+The application will be available at `http://kanah-health.vercel.app`
+
+## Available Scripts
+
+- `pnpm dev`: Start the development server
+- `pnpm build`: Build the application for production
+- `pnpm start`: Start the production server
+- `pnpm lint`: Run ESLint for code linting
+
+## Project Structure
+
+```
+kanah-health/
+├── app/                    # Next.js app directory
+│   ├── auth/              # Authentication related pages
+│   ├── dashboard/         # User dashboard
+│   ├── symptom-checker/   # Symptom checking feature
+│   ├── health-tips/       # Health information
+│   ├── consultations/     # Consultation management
+│   ├── baby-growth/       # Baby growth tracking
+│   └── call-nurse/        # Nurse calling feature
+├── components/            # Reusable UI components
+├── lib/                   # Utility functions and configurations
+├── hooks/                 # Custom React hooks
+├── contexts/             # React context providers
+├── styles/               # Global styles
+└── public/               # Static assets
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Support
+
+For support, please contact info@kanah.health

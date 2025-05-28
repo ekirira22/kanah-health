@@ -269,6 +269,34 @@ export async function checkEmailExists(email: string): Promise<boolean> {
   }
 }
 
+export async function sendVerificationEmail() {
+  try {
+    const supabase = getSupabaseClient()
+    const { data: { session } } = await supabase.auth.getSession()
+    
+    if (!session?.user) {
+      throw new Error("No user session found")
+    }
+
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email: session.user.email!,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      }
+    })
+
+    if (error) throw error
+
+    return { success: true }
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error.message || "Failed to send verification email"
+    }
+  }
+}
+
 export async function signUpWithEmail(email: string, password: string) {
   try {
     const supabase = getSupabaseClient()
@@ -295,6 +323,19 @@ export async function signUpWithEmail(email: string, password: string) {
     })
 
     if (error) throw error
+
+    // Send verification email
+    const { error: verificationError } = await supabase.auth.resend({
+      type: 'signup',
+      email,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      }
+    })
+
+    if (verificationError) {
+      console.error("Failed to send verification email:", verificationError)
+    }
 
     return { data, error: null }
   } catch (error: any) {

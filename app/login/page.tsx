@@ -111,7 +111,7 @@ export default function Login() {
         }
 
         // Get user from our custom users table
-        const supabase = getSupabaseClient()
+      const supabase = getSupabaseClient()
         const { data: userData, error: userError } = await supabase
           .from("users")
           .select("id, email")
