@@ -1,11 +1,11 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { getSupabaseClient } from "@/lib/supabase/client"
 import { toast } from "@/components/ui/use-toast"
 
-export default function AuthCallback() {
+function AuthCallbackContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const token = searchParams.get('token')
@@ -70,5 +70,20 @@ export default function AuthCallback() {
         <p className="text-muted-foreground">Please wait while we complete the process.</p>
       </div>
     </main>
+  )
+}
+
+export default function AuthCallback() {
+  return (
+    <Suspense fallback={
+      <main className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-semibold mb-2">Loading...</h1>
+          <p className="text-muted-foreground">Please wait while we process your request.</p>
+        </div>
+      </main>
+    }>
+      <AuthCallbackContent />
+    </Suspense>
   )
 } 

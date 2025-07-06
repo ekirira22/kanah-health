@@ -282,7 +282,7 @@ export async function sendVerificationEmail() {
       type: 'signup',
       email: session.user.email!,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        emailRedirectTo: `https://kanah-health.vercel.app/auth/callback`,
       }
     })
 
