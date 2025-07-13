@@ -80,3 +80,12 @@
   70% { opacity: 0; transform: translate(-50%, -50%) scale(1.7); }
   100% { opacity: 0; transform: translate(-50%, -50%) scale(2); }
 }
+
+/* Hide scrollbar for webkit browsers */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Safari and Chrome */
+}

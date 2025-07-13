@@ -22,7 +22,7 @@ export async function middleware(req: NextRequest) {
   const protectedRoutes = [
     "/dashboard",
     "/symptom-checker",
-    "/call-nurse",
+    "/book-appointment",
     "/health-tips",
     "/baby-growth",
     "/calendar",
@@ -66,7 +66,7 @@ export const config = {
     '/',
     '/dashboard/:path*',
     '/symptom-checker/:path*',
-    '/call-nurse/:path*',
+    '/book-appointment/:path*',
     '/health-tips/:path*',
     '/baby-growth/:path*',
     '/calendar/:path*',

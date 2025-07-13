@@ -215,7 +215,7 @@ export default function Dashboard() {
         <h2 className="font-medium mb-4">Quick Actions</h2>
         <div className="grid grid-cols-2 gap-4 mb-6">
           <QuickActionButton icon={Heart} label="Symptom Checker" href="/symptom-checker" color="bg-red-100" />
-          <QuickActionButton icon={Phone} label="Book Appointment" href="/call-nurse" color="bg-green-100" />
+          <QuickActionButton icon={Phone} label="Book Appointment" href="/book-appointment" color="bg-green-100" />
           <QuickActionButton icon={BookOpen} label="Health Tips" href="/health-tips" color="bg-blue-100" />
           <QuickActionButton icon={BarChart3} label="Baby Growth" href="/baby-growth" color="bg-yellow-100" isPremium />
           {/* <QuickActionButton icon={NotebookPen} label="Appointments" href="/appointments" color="bg-purple-100" /> */}

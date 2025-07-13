@@ -79,7 +79,7 @@ kanah-health/
 │   ├── health-tips/       # Health information
 │   ├── appointments/     # Appointment management
 │   ├── baby-growth/       # Baby growth tracking
-│   └── call-nurse/        # Nurse calling feature
+│   └── book-appointment/  # Appointment booking feature
 ├── components/            # Reusable UI components
 ├── lib/                   # Utility functions and configurations
 ├── hooks/                 # Custom React hooks

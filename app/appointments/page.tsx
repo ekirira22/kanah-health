@@ -103,7 +103,7 @@ export default function Appointments() {
   }
 
   const handleBookAppointment = () => {
-    router.push("/call-nurse")
+    router.push("/book-appointment")
   }
 
   const upcomingAppointments = appointments.filter((a) => a.status === "upcoming")
