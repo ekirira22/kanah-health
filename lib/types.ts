@@ -33,12 +33,14 @@ export interface Baby {
 export interface HealthWorker {
   id: string
   user_id: string
-  worker_type: string
+  worker_type: 'doctor' | 'nurse' | 'community_health_worker' | 'midwife'
   available_for_visits: boolean
   available_for_calls: boolean
   latitude: number | null
   longitude: number | null
   max_daily_visits: number
+  avg_rating: number
+  reviews: number
   created_at: string
   updated_at: string
 }
@@ -47,14 +49,16 @@ export interface Appointment {
   id: string
   mother_id: string
   health_worker_id: string
-  appointment_type: string
+  appointment_type: 'video' | 'visit'
   status: string
+  location: string
   scheduled_time: string
   payment_status: 'pending' | 'paid' | 'refunded'
   payment_amount: number
   payment_reference: string | null
   scheduled_duration_minutes: number
   notes: string | null
+  link: string | null
   created_at: string
   updated_at: string
 }

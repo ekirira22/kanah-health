@@ -57,3 +57,26 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Pulsate wave animation for floating action button */
+.pulsate-wave {
+  position: relative;
+}
+.pulsate-wave::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 120%;
+  height: 120%;
+  border-radius: 9999px;
+  background: rgba(139, 92, 246, 0.3); /* purple-500/30 */
+  z-index: -1;
+  animation: pulse-wave 2.5s infinite cubic-bezier(0.4, 0, 0.6, 1);
+}
+@keyframes pulse-wave {
+  0% { opacity: 0.7; transform: translate(-50%, -50%) scale(1); }
+  70% { opacity: 0; transform: translate(-50%, -50%) scale(1.7); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(2); }
+}

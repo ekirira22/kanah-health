@@ -9,7 +9,7 @@ import { ReminderCard } from "@/components/reminder-card"
 import { QuickActionButton } from "@/components/quick-action-button"
 import { AdCard } from "@/components/ad-card"
 import { NotificationBell } from "@/components/notification-bell"
-import { Heart, Phone, BookOpen, BarChart3 } from "lucide-react"
+import { Heart, Phone, BookOpen, BarChart3, NotebookPen } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
 import { getSupabaseClient } from "@/lib/supabase/client"
 import type { AutomatedReminder, Advertisement } from "@/lib/types"
@@ -215,9 +215,10 @@ export default function Dashboard() {
         <h2 className="font-medium mb-4">Quick Actions</h2>
         <div className="grid grid-cols-2 gap-4 mb-6">
           <QuickActionButton icon={Heart} label="Symptom Checker" href="/symptom-checker" color="bg-red-100" />
-          <QuickActionButton icon={Phone} label="Call a Nurse" href="/call-nurse" color="bg-green-100" />
+          <QuickActionButton icon={Phone} label="Book Appointment" href="/call-nurse" color="bg-green-100" />
           <QuickActionButton icon={BookOpen} label="Health Tips" href="/health-tips" color="bg-blue-100" />
           <QuickActionButton icon={BarChart3} label="Baby Growth" href="/baby-growth" color="bg-yellow-100" isPremium />
+          {/* <QuickActionButton icon={NotebookPen} label="Appointments" href="/appointments" color="bg-purple-100" /> */}
         </div>
 
         <div className="mb-6">

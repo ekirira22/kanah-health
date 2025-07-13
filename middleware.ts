@@ -26,7 +26,7 @@ export async function middleware(req: NextRequest) {
     "/health-tips",
     "/baby-growth",
     "/calendar",
-    "/consultations",
+    "/appointments",
     "/settings",
   ]
 
@@ -70,7 +70,7 @@ export const config = {
     '/health-tips/:path*',
     '/baby-growth/:path*',
     '/calendar/:path*',
-    '/consultations/:path*',
+    '/appointments/:path*',
     '/settings/:path*',
     '/login',
     '/signup',

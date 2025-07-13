@@ -7,7 +7,7 @@ A comprehensive postnatal health companion platform designed specifically for mo
 - **Symptom Checker**: Monitor and track postnatal symptoms
 - **Baby Growth Tracking**: Track your baby's development milestones
 - **Health Tips**: Access valuable health information and guidance
-- **Consultations**: Schedule and manage healthcare consultations
+- **Appointments**: Schedule and manage healthcare appointments
 - **Call Nurse**: Direct access to nursing support
 - **Multi-language Support**: Available in multiple languages
 - **User Authentication**: Secure login and signup system
@@ -77,7 +77,7 @@ kanah-health/
 │   ├── dashboard/         # User dashboard
 │   ├── symptom-checker/   # Symptom checking feature
 │   ├── health-tips/       # Health information
-│   ├── consultations/     # Consultation management
+│   ├── appointments/     # Appointment management
 │   ├── baby-growth/       # Baby growth tracking
 │   └── call-nurse/        # Nurse calling feature
 ├── components/            # Reusable UI components

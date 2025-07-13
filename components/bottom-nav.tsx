@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, Calendar, Phone, Settings } from "lucide-react"
+import { Home, Calendar, NotebookPen, Settings } from "lucide-react"
 
 export function BottomNav() {
   const pathname = usePathname()
@@ -20,6 +20,15 @@ export function BottomNav() {
           <span className="text-xs mt-1">Home</span>
         </Link>
         <Link
+          href="/appointments"
+          className={`flex flex-col items-center p-2 ${
+            pathname === "/appointments" ? "text-primary" : "text-muted-foreground"
+          }`}
+        >
+          <NotebookPen size={20} />
+          <span className="text-xs mt-1">Appointments</span>
+        </Link>        
+        <Link
           href="/calendar"
           className={`flex flex-col items-center p-2 ${
             pathname === "/calendar" ? "text-primary" : "text-muted-foreground"
@@ -27,15 +36,6 @@ export function BottomNav() {
         >
           <Calendar size={20} />
           <span className="text-xs mt-1">Calendar</span>
-        </Link>
-        <Link
-          href="/consultations"
-          className={`flex flex-col items-center p-2 ${
-            pathname === "/consultations" ? "text-primary" : "text-muted-foreground"
-          }`}
-        >
-          <Phone size={20} />
-          <span className="text-xs mt-1">Consultations</span>
         </Link>
         <Link
           href="/settings"
