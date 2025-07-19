@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { ChevronLeft, Star, ClipboardPlus, Check } from "lucide-react"
+import { Star, ClipboardPlus, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { LanguageToggle } from "@/components/language-toggle"
-import { NotificationBell } from "@/components/notification-bell"
 import { BottomNav } from "@/components/bottom-nav"
+import { AppHeader } from "@/components/app-header"
 import { getSupabaseClient } from "@/lib/supabase/client"
+import { LoadingSpinner } from "@/components/loading-spinner"
 import type { HealthWorker, User } from "@/lib/types"
 
 interface HealthWorkerWithUser extends HealthWorker {
@@ -114,10 +114,6 @@ export default function BookAppointment() {
     }
   }
 
-  const handleBack = () => {
-    router.back()
-  }
-
   const handlePayment = () => {
     setIsProcessingPayment(true)
     setShowPhoneInput(true)
@@ -125,7 +121,7 @@ export default function BookAppointment() {
   }
 
   const handlePrompt = async () => {
-    if (!phoneNumber || phoneNumber.length < 10) {
+    if (!phoneNumber || phoneNumber.length <= 10) {
       alert("Please enter a valid phone number")
       return
     }
@@ -159,19 +155,7 @@ export default function BookAppointment() {
 
   return (
     <main className="flex min-h-screen flex-col">
-      {/* Header */}
-      <div className="bg-primary text-white p-4 flex items-center justify-between">
-        <div className="flex items-center">
-          <Button variant="ghost" size="icon" onClick={handleBack} className="text-white mr-2">
-            <ChevronLeft size={24} />
-          </Button>
-          <h1 className="text-xl font-bold">Book Appointment</h1>
-        </div>
-        <div className="flex items-center gap-2">
-          <NotificationBell />
-          <LanguageToggle initialLanguage="english" />
-        </div>
-      </div>
+      <AppHeader title="Book Appointment" showBack />
 
       {/* Content */}
       <div className="flex-1 p-6 pb-20">
@@ -309,9 +293,7 @@ export default function BookAppointment() {
         </div>
 
         {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          </div>
+          <LoadingSpinner message="Loading health workers..." />
         ) : healthWorkers.length > 0 ? (
           healthWorkers.map((worker) => (
             <div key={worker.id} className="border rounded-lg p-5 mb-5 hover:shadow-md transition-shadow">

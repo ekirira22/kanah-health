@@ -2,18 +2,16 @@
 
 import { useState, useEffect } from "react"
 import { AlertTriangle, Droplet } from "lucide-react"
-import { LanguageToggle } from "@/components/language-toggle"
 import { BottomNav } from "@/components/bottom-nav"
 import { MoodSelector } from "@/components/mood-selector"
 import { ReminderCard } from "@/components/reminder-card"
 import { QuickActionButton } from "@/components/quick-action-button"
 import { AdCard } from "@/components/ad-card"
-import { NotificationBell } from "@/components/notification-bell"
+import { AppHeader } from "@/components/app-header"
 import { Heart, Phone, BookOpen, BarChart3, NotebookPen } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
 import { getSupabaseClient } from "@/lib/supabase/client"
 import type { AutomatedReminder, Advertisement } from "@/lib/types"
-import { Button } from "@/components/ui/button"
 
 export default function Dashboard() {
   const { user, mother, isLoading } = useAuth()
@@ -144,10 +142,6 @@ export default function Dashboard() {
             <h1 className="text-2xl font-bold">Hello, {user?.full_name?.split(' ')[0] || "Mama"}!</h1>
             <p className="text-sm opacity-90">Day {daysSinceBirth} postpartum</p>
           </div>
-          <div className="flex items-center gap-2">
-            <NotificationBell />
-            <LanguageToggle initialLanguage={mother?.language_preference || "english"} />
-          </div>
         </div>
 
         {/* User Details */}
@@ -165,13 +159,6 @@ export default function Dashboard() {
               <span className="text-sm opacity-80">Subscription</span>
               <span className="text-sm font-medium capitalize">{mother?.subscription_status || "Free"}</span>
             </div>
-            <Button 
-              variant="secondary" 
-              className="w-full mt-2"
-              onClick={() => window.location.href = "/dashboard/profile"}
-            >
-              View Profile
-            </Button>
           </div>
         </div>
 

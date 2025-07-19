@@ -9,11 +9,18 @@ import { Label } from "@/components/ui/label"
 import { toast } from "@/components/ui/use-toast"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { BottomNav } from "@/components/bottom-nav"
-import type { User, Mother } from "@/lib/types"
+import { AppHeader } from "@/components/app-header"
+import { MapPin, Baby as BabyIcon, User as UserIcon, Calendar, Phone, Mail, Edit3 } from "lucide-react"
+import { LocationPicker } from "@/components/location-picker"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { LoadingSpinner } from "@/components/loading-spinner"
+import type { User, Mother, Baby } from "@/lib/types"
 
 export default function Profile() {
-  const { user, mother, isLoading } = useAuth()
+  const { user, mother, isLoading, refreshUser } = useAuth()
   const [isEditing, setIsEditing] = useState(false)
+  const [baby, setBaby] = useState<Baby | null>(null)
+  const [location, setLocation] = useState("")
   const [formData, setFormData] = useState({
     full_name: "",
     email: "",
@@ -25,21 +32,64 @@ export default function Profile() {
   })
 
   useEffect(() => {
-    if (user && mother) {
-      setFormData({
-        full_name: user.full_name,
-        email: user.email,
-        phone_number: user.phone_number,
-        language_preference: mother.language_preference,
-        birth_type: mother.birth_type,
-        latitude: mother.latitude || 0,
-        longitude: mother.longitude || 0,
-      })
+    const fetchProfileData = async () => {
+      if (!user || !mother) return
+
+      try {
+        const supabase = getSupabaseClient()
+        
+        // Fetch baby data
+        const { data: babyData } = await supabase
+          .from("babies")
+          .select("*")
+          .eq("mother_id", mother.id)
+          .single() as { data: Baby | null }
+
+        setBaby(babyData)
+
+        // Fetch location from coordinates
+        if (mother.latitude && mother.longitude) {
+          try {
+            const response = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${mother.latitude}&lon=${mother.longitude}&zoom=10&addressdetails=1`
+            )
+            const data = await response.json()
+            if (data.display_name) {
+              // Simplify location display
+              const addressParts = data.display_name.split(', ')
+              const simplifiedLocation = addressParts.slice(-3).join(', ') // Take last 3 parts
+              setLocation(simplifiedLocation)
+            }
+          } catch (error) {
+            console.error("Error fetching location:", error)
+            setLocation("Location not available")
+          }
+        }
+
+        // Set initial form data only once
+        setFormData({
+          full_name: user.full_name,
+          email: user.email,
+          phone_number: user.phone_number,
+          language_preference: mother.language_preference,
+          birth_type: mother.birth_type,
+          latitude: mother.latitude || 0,
+          longitude: mother.longitude || 0,
+        })
+      } catch (error) {
+        console.error("Error fetching profile data:", error)
+      }
     }
-  }, [user, mother])
+
+    fetchProfileData()
+  }, [user, mother]) // Remove isEditing from dependencies
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handleSelectChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
@@ -83,12 +133,34 @@ export default function Profile() {
 
       if (motherError) throw motherError
 
+      // Update location display with simplified format
+      if (formData.latitude && formData.longitude) {
+        try {
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${formData.latitude}&lon=${formData.longitude}&zoom=10&addressdetails=1`
+          )
+          const data = await response.json()
+          if (data.display_name) {
+            // Simplify location display
+            const addressParts = data.display_name.split(', ')
+            const simplifiedLocation = addressParts.slice(-3).join(', ')
+            setLocation(simplifiedLocation)
+          }
+        } catch (error) {
+          console.error("Error fetching updated location:", error)
+          setLocation("Location updated")
+        }
+      }
+
       toast({
         title: "Profile updated",
         description: "Your changes have been saved successfully",
       })
       
       setIsEditing(false)
+      
+      // Refresh user data in context to update dashboard and other components
+      await refreshUser()
     } catch (error: any) {
       toast({
         title: "Update failed",
@@ -99,15 +171,33 @@ export default function Profile() {
   }
 
   if (isLoading) {
-    return <div>Loading...</div>
+    return <LoadingSpinner message="Loading profile..." />
   }
 
   return (
     <main className="flex min-h-screen flex-col pb-16">
-      <div className="p-6">
+      <AppHeader title="Profile" showBack />
+      
+      <div className="p-6 space-y-6">
+        {/* Edit Button */}
+        <div className="flex justify-end">
+          <Button
+            variant={isEditing ? "destructive" : "default"}
+            onClick={() => setIsEditing(!isEditing)}
+            className="flex items-center gap-2"
+          >
+            <Edit3 size={16} />
+            {isEditing ? "Cancel Edit" : "Edit Profile"}
+          </Button>
+        </div>
+
+        {/* User Profile Card */}
         <Card>
           <CardHeader>
-            <CardTitle>Profile Details</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <UserIcon size={20} />
+              Personal Information
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -147,39 +237,132 @@ export default function Profile() {
 
               <div className="space-y-2">
                 <Label htmlFor="language_preference">Language Preference</Label>
-                <Input
-                  id="language_preference"
-                  name="language_preference"
-                  value={formData.language_preference}
-                  onChange={handleInputChange}
-                  disabled={!isEditing}
-                />
+                {isEditing ? (
+                  <Select
+                    value={formData.language_preference}
+                    onValueChange={(value) => handleSelectChange("language_preference", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select language" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="english">English</SelectItem>
+                      <SelectItem value="swahili">Swahili</SelectItem>
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <div className="p-3 bg-muted rounded-md">
+                    <span className="capitalize">{formData.language_preference || "Not set"}</span>
+                  </div>
+                )}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="birth_type">Birth Type</Label>
-                <Input
-                  id="birth_type"
-                  name="birth_type"
-                  value={formData.birth_type}
-                  onChange={handleInputChange}
-                  disabled={!isEditing}
-                />
-              </div>
-
-              <div className="pt-4 flex justify-end gap-4">
                 {isEditing ? (
-                  <>
-                    <Button variant="outline" onClick={() => setIsEditing(false)}>
-                      Cancel
-                    </Button>
-                    <Button type="submit">Save Changes</Button>
-                  </>
+                  <Select
+                    value={formData.birth_type}
+                    onValueChange={(value) => handleSelectChange("birth_type", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select birth type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="vaginal">Vaginal</SelectItem>
+                      <SelectItem value="c_section">C Section</SelectItem>
+                    </SelectContent>
+                  </Select>
                 ) : (
-                  <Button onClick={() => setIsEditing(true)}>Edit Profile</Button>
+                  <div className="p-3 bg-muted rounded-md">
+                    <span className="capitalize">{formData.birth_type || "Not set"}</span>
+                  </div>
                 )}
               </div>
+
+              {isEditing && (
+                <div className="pt-4 flex justify-end">
+                  <Button type="submit" className="flex items-center gap-2">
+                    Save Changes
+                  </Button>
+                </div>
+              )}
             </form>
+          </CardContent>
+        </Card>
+
+        {/* Baby Information Card */}
+        {baby && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BabyIcon size={20} />
+                Baby Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <Calendar size={16} className="text-muted-foreground" />
+                  <div>
+                    <p className="text-sm font-medium">Birth Date</p>
+                    <p className="text-sm text-muted-foreground">
+                      {new Date(baby.birth_date).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Calendar size={16} className="text-muted-foreground" />
+                  <div>
+                    <p className="text-sm font-medium">Age</p>
+                    <p className="text-sm text-muted-foreground">
+                      {Math.floor((new Date().getTime() - new Date(baby.birth_date).getTime()) / (1000 * 60 * 60 * 24))} days old
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Location Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <MapPin size={20} />
+              Location
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <MapPin size={16} className="text-muted-foreground" />
+                <div>
+                  <p className="text-sm font-medium">Current Location</p>
+                  <p className="text-sm text-muted-foreground">
+                    {location || "Location not set"}
+                  </p>
+                </div>
+              </div>
+              {isEditing && (
+                <div className="space-y-2">
+                  <Label>Update Location</Label>
+                  <LocationPicker
+                    onLocationSelect={(selectedLocation) => {
+                      setFormData(prev => ({
+                        ...prev,
+                        latitude: parseFloat(selectedLocation.lat),
+                        longitude: parseFloat(selectedLocation.lon)
+                      }))
+                      // Simplify location display
+                      const addressParts = selectedLocation.display_name.split(', ')
+                      const simplifiedLocation = addressParts.slice(-3).join(', ')
+                      setLocation(simplifiedLocation)
+                    }}
+                    placeholder={location || "Search for your location..."}
+                  />
+                </div>
+              )}
+            </div>
           </CardContent>
         </Card>
       </div>

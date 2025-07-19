@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { ChevronLeft, Calendar, Clock, Video, PhoneIcon, ClipboardPlus } from "lucide-react"
+import { Calendar, Clock, Video, PhoneIcon, ClipboardPlus } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { LanguageToggle } from "@/components/language-toggle"
-import { NotificationBell } from "@/components/notification-bell"
 import { BottomNav } from "@/components/bottom-nav"
+import { AppHeader } from "@/components/app-header"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useAuth } from "@/contexts/auth-context"
+import { LoadingSpinner } from "@/components/loading-spinner"
 import { getSupabaseClient } from "@/lib/supabase/client"
 import type { Appointment, HealthWorker, User } from "@/lib/types"
 import { format, isToday, isYesterday, isAfter, isBefore, differenceInCalendarDays, parseISO } from "date-fns"
@@ -98,10 +98,6 @@ export default function Appointments() {
     fetchAppointments()
   }, [mother?.id])
 
-  const handleBack = () => {
-    router.back()
-  }
-
   const handleBookAppointment = () => {
     router.push("/book-appointment")
   }
@@ -111,24 +107,12 @@ export default function Appointments() {
 
   return (
     <main className="flex min-h-screen flex-col pb-16">
-      {/* Header */}
-      <div className="bg-primary text-white p-4 flex items-center justify-between">
-        <div className="flex items-center">
-          <Button variant="ghost" size="icon" onClick={handleBack} className="text-white mr-2">
-            <ChevronLeft size={24} />
-          </Button>
-          <h1 className="text-xl font-bold">Appointments</h1>
-        </div>
-        <div className="flex items-center gap-2">
-          <NotificationBell />
-          <LanguageToggle initialLanguage="english" />
-        </div>
-      </div>
+      <AppHeader title="Appointments" showBack />
 
       {/* Content */}
       <div className="flex-1 p-4">
         {loading ? (
-          <div className="text-center py-8 text-muted-foreground">Loading appointments...</div>
+          <LoadingSpinner message="Loading appointments..." />
         ) : (
         <Tabs defaultValue="upcoming" className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-4">

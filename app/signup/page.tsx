@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { PasswordInput } from "@/components/password-input"
 import { useToast } from "@/components/ui/use-toast"
 import { signUpWithEmail, signInWithGoogle, showEmailVerificationReminder } from "@/lib/auth-utils"
 
@@ -44,9 +45,16 @@ export default function SignUp() {
     if (!password) {
       newErrors.password = "Password is required"
       isValid = false
-    } else if (password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters"
+    } else if (password.length < 8) {
+      newErrors.password = "Password must be at least 8 characters"
       isValid = false
+    } else {
+      // Check for at least one uppercase letter, one lowercase letter, and one number
+      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/
+      if (!passwordRegex.test(password)) {
+        newErrors.password = "Password must contain at least one uppercase letter, one lowercase letter, and one number"
+        isValid = false
+      }
     }
 
     // Confirm password validation
@@ -165,9 +173,8 @@ export default function SignUp() {
                 <label htmlFor="password" className="text-sm font-medium mb-1 block">
                   Password
                 </label>
-                <Input
+                <PasswordInput
                   id="password"
-                  type="password"
                   placeholder="Create a password"
                   value={password}
                   onChange={(e) => {
@@ -176,8 +183,10 @@ export default function SignUp() {
                   }}
                   className={errors.password ? "border-destructive" : ""}
                   required
-                  minLength={6}
                 />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Must be at least 8 characters with uppercase, lowercase, and number
+                </p>
                 {errors.password && (
                   <p className="text-destructive text-sm mt-1">{errors.password}</p>
                 )}
@@ -187,9 +196,8 @@ export default function SignUp() {
                 <label htmlFor="confirmPassword" className="text-sm font-medium mb-1 block">
                   Confirm Password
                 </label>
-                <Input
+                <PasswordInput
                   id="confirmPassword"
-                  type="password"
                   placeholder="Confirm your password"
                   value={confirmPassword}
                   onChange={(e) => {
@@ -198,7 +206,6 @@ export default function SignUp() {
                   }}
                   className={errors.confirmPassword ? "border-destructive" : ""}
                   required
-                  minLength={6}
                 />
                 {errors.confirmPassword && (
                   <p className="text-destructive text-sm mt-1">{errors.confirmPassword}</p>

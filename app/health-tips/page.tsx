@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { ChevronLeft, Search } from "lucide-react"
+import { Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { LanguageToggle } from "@/components/language-toggle"
-import { NotificationBell } from "@/components/notification-bell"
+import { AppHeader } from "@/components/app-header"
 import { getSupabaseClient } from "@/lib/supabase/client"
+import { LoadingSpinner } from "@/components/loading-spinner"
 import type { HealthTip } from "@/lib/types"
 
 export default function HealthTips() {
@@ -32,8 +32,8 @@ export default function HealthTips() {
           throw error
         }
 
-        setHealthTips(data as HealthTip[])
-        setFilteredTips(data as HealthTip[])
+        setHealthTips(data as unknown as HealthTip[])
+        setFilteredTips(data as unknown as HealthTip[])
       } catch (error) {
         console.error("Error fetching health tips:", error)
         // For demo purposes, use mock data if the API call fails
@@ -107,10 +107,6 @@ export default function HealthTips() {
     setFilteredTips(filtered)
   }, [searchQuery, selectedCategory, healthTips])
 
-  const handleBack = () => {
-    router.back()
-  }
-
   const handleCategorySelect = (category: string) => {
     setSelectedCategory(category === selectedCategory ? null : category)
   }
@@ -151,19 +147,7 @@ export default function HealthTips() {
 
   return (
     <main className="flex min-h-screen flex-col">
-      {/* Header */}
-      <div className="bg-primary text-white p-4 flex items-center justify-between">
-        <div className="flex items-center">
-          <Button variant="ghost" size="icon" onClick={handleBack} className="text-white mr-2">
-            <ChevronLeft size={24} />
-          </Button>
-          <h1 className="text-xl font-bold">Health Tips</h1>
-        </div>
-        <div className="flex items-center gap-2">
-          <NotificationBell />
-          <LanguageToggle initialLanguage="english" />
-        </div>
-      </div>
+      <AppHeader title="Health Tips" showBack />
 
       {/* Search */}
       <div className="p-4 border-b">
@@ -198,9 +182,7 @@ export default function HealthTips() {
       {/* Content */}
       <div className="flex-1 p-4">
         {isLoading ? (
-          <div className="flex justify-center items-center h-40">
-            <p>Loading health tips...</p>
-          </div>
+          <LoadingSpinner message="Loading health tips..." />
         ) : filteredTips.length === 0 ? (
           <div className="flex justify-center items-center h-40">
             <p className="text-muted-foreground">No health tips found</p>

@@ -1,15 +1,11 @@
 "use client"
 import { useRouter } from "next/navigation"
-import { ChevronLeft, Lock } from "lucide-react"
+import { Lock } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { LanguageToggle } from "@/components/language-toggle"
+import { AppHeader } from "@/components/app-header"
 
 export default function BabyGrowth() {
   const router = useRouter()
-
-  const handleBack = () => {
-    router.back()
-  }
 
   const handleSubscribe = () => {
     // In a real app, we would redirect to a payment page
@@ -18,16 +14,7 @@ export default function BabyGrowth() {
 
   return (
     <main className="flex min-h-screen flex-col">
-      {/* Header */}
-      <div className="bg-primary text-white p-4 flex items-center justify-between">
-        <div className="flex items-center">
-          <Button variant="ghost" size="icon" onClick={handleBack} className="text-white mr-2">
-            <ChevronLeft size={24} />
-          </Button>
-          <h1 className="text-xl font-bold">Baby Growth</h1>
-        </div>
-        <LanguageToggle initialLanguage="english" />
-      </div>
+      <AppHeader title="Baby Growth" showBack />
 
       {/* Premium content lock */}
       <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">

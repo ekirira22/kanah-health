@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { LanguageToggle } from "@/components/language-toggle"
+import { PasswordInput } from "@/components/password-input"
 import { getSupabaseClient } from "@/lib/supabase/client"
 import { toast } from "@/components/ui/use-toast"
 
@@ -19,26 +20,70 @@ export default function MotherDetails() {
   const [error, setError] = useState("")
 
   const validateForm = () => {
-    if (!fullName || !email || !password || !confirmPassword || !location) {
-      setError("Please fill in all fields")
+    // Check for empty fields
+    if (!fullName.trim()) {
+      setError("Full name is required")
       toast({
         title: "Missing Information",
-        description: "Please fill in all the required fields to continue.",
+        description: "Please enter your full name.",
         variant: "destructive",
       })
       return false
     }
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match")
+    if (!email.trim()) {
+      setError("Email is required")
       toast({
-        title: "Password Mismatch",
-        description: "The passwords you entered don't match. Please try again.",
+        title: "Missing Information",
+        description: "Please enter your email address.",
         variant: "destructive",
       })
       return false
     }
 
+    if (!password) {
+      setError("Password is required")
+      toast({
+        title: "Missing Information",
+        description: "Please create a password.",
+        variant: "destructive",
+      })
+      return false
+    }
+
+    if (!confirmPassword) {
+      setError("Please confirm your password")
+      toast({
+        title: "Missing Information",
+        description: "Please confirm your password.",
+        variant: "destructive",
+      })
+      return false
+    }
+
+    if (!location.trim()) {
+      setError("Location is required")
+      toast({
+        title: "Missing Information",
+        description: "Please enter your location.",
+        variant: "destructive",
+      })
+      return false
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      setError("Please enter a valid email address")
+      toast({
+        title: "Invalid Email",
+        description: "Please enter a valid email address.",
+        variant: "destructive",
+      })
+      return false
+    }
+
+    // Password validation
     if (password.length < 8) {
       setError("Password must be at least 8 characters long")
       toast({
@@ -49,13 +94,23 @@ export default function MotherDetails() {
       return false
     }
 
-    // Basic email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(email)) {
-      setError("Please enter a valid email address")
+    // Check for at least one uppercase letter, one lowercase letter, and one number
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/
+    if (!passwordRegex.test(password)) {
+      setError("Password must contain at least one uppercase letter, one lowercase letter, and one number")
       toast({
-        title: "Invalid Email",
-        description: "Please enter a valid email address.",
+        title: "Password Requirements",
+        description: "Password must contain at least one uppercase letter, one lowercase letter, and one number.",
+        variant: "destructive",
+      })
+      return false
+    }
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match")
+      toast({
+        title: "Password Mismatch",
+        description: "The passwords you entered don't match. Please try again.",
         variant: "destructive",
       })
       return false
@@ -192,16 +247,15 @@ export default function MotherDetails() {
               <label htmlFor="password" className="text-sm font-medium mb-1 block">
                 Password <span className="text-destructive">*</span>
               </label>
-              <Input
+              <PasswordInput
                 id="password"
-                type="password"
                 placeholder="Create a password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Must be at least 8 characters long
+                Must be at least 8 characters with uppercase, lowercase, and number
               </p>
             </div>
 
@@ -209,9 +263,8 @@ export default function MotherDetails() {
               <label htmlFor="confirmPassword" className="text-sm font-medium mb-1 block">
                 Confirm Password <span className="text-destructive">*</span>
               </label>
-              <Input
+              <PasswordInput
                 id="confirmPassword"
-                type="password"
                 placeholder="Confirm your password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}

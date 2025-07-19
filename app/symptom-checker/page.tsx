@@ -2,11 +2,10 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { ChevronLeft, Send } from "lucide-react"
+import { Send } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { LanguageToggle } from "@/components/language-toggle"
-import { NotificationBell } from "@/components/notification-bell"
+import { AppHeader } from "@/components/app-header"
 
 type MessageType = "system" | "user" | "assistant" | "options"
 
@@ -38,10 +37,6 @@ export default function SymptomChecker() {
   ])
   const [input, setInput] = useState("")
   const [selectedOption, setSelectedOption] = useState<string | null>(null)
-
-  const handleBack = () => {
-    router.back()
-  }
 
   const handleSendMessage = () => {
     if (!input.trim()) return
@@ -112,19 +107,7 @@ export default function SymptomChecker() {
 
   return (
     <main className="flex min-h-screen flex-col">
-      {/* Header */}
-      <div className="bg-primary text-white p-4 flex items-center justify-between">
-        <div className="flex items-center">
-          <Button variant="ghost" size="icon" onClick={handleBack} className="text-white mr-2">
-            <ChevronLeft size={24} />
-          </Button>
-          <h1 className="text-xl font-bold">Symptom Checker</h1>
-        </div>
-        <div className="flex items-center gap-2">
-          <NotificationBell />
-          <LanguageToggle initialLanguage="english" />
-        </div>
-      </div>
+      <AppHeader title="Symptom Checker" showBack />
 
       {/* Chat area */}
       <div className="flex-1 p-4 overflow-y-auto">

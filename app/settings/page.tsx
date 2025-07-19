@@ -2,23 +2,21 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { ChevronLeft, LogOut, Moon, Sun, Globe, Bell } from "lucide-react"
+import { LogOut, Moon, Sun, Bell, Shield, HelpCircle, Star, Crown, Settings as SettingsIcon, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { useAuth } from "@/contexts/auth-context"
 import { LanguageToggle } from "@/components/language-toggle"
 import { BottomNav } from "@/components/bottom-nav"
+import { AppHeader } from "@/components/app-header"
+import { useThemeState } from "@/hooks/use-theme"
 
 export default function Settings() {
   const router = useRouter()
   const { user, mother, signOut, isLoading } = useAuth()
-  const [isDarkMode, setIsDarkMode] = useState(false)
+  const { isDark, toggleTheme, mounted } = useThemeState()
   const [notificationsEnabled, setNotificationsEnabled] = useState(true)
   const [isSigningOut, setIsSigningOut] = useState(false)
-
-  const handleBack = () => {
-    router.back()
-  }
 
   const handleSignOut = async () => {
     setIsSigningOut(true)
@@ -36,16 +34,7 @@ export default function Settings() {
 
   return (
     <main className="flex min-h-screen flex-col pb-16">
-      {/* Header */}
-      <div className="bg-primary text-white p-4 flex items-center justify-between">
-        <div className="flex items-center">
-          <Button variant="ghost" size="icon" onClick={handleBack} className="text-white mr-2">
-            <ChevronLeft size={24} />
-          </Button>
-          <h1 className="text-xl font-bold">Settings</h1>
-        </div>
-        <LanguageToggle initialLanguage={mother?.language_preference || "english"} />
-      </div>
+      <AppHeader title="Settings" showBack />
 
       {/* Content */}
       <div className="flex-1 p-6">
@@ -67,10 +56,10 @@ export default function Settings() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  {isDarkMode ? <Moon size={20} /> : <Sun size={20} />}
+                  {isDark ? <Moon size={20} /> : <Sun size={20} />}
                   <span>Dark Mode</span>
                 </div>
-                <Switch checked={isDarkMode} onCheckedChange={setIsDarkMode} />
+                <Switch checked={isDark} onCheckedChange={toggleTheme} disabled={!mounted} />
               </div>
             </div>
           </div>
@@ -91,11 +80,51 @@ export default function Settings() {
           <div className="border-b pb-4">
             <h3 className="font-medium mb-4">Language</h3>
             <div className="flex items-center gap-3">
-              <Globe size={20} />
               <span>Language</span>
               <div className="ml-auto">
                 <LanguageToggle initialLanguage={mother?.language_preference || "english"} />
               </div>
+            </div>
+          </div>
+
+          <div className="border-b pb-4">
+            <h3 className="font-medium mb-4">Subscription</h3>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Crown size={20} className="text-yellow-500" />
+                  <div>
+                    <span className="font-medium">Current Plan</span>
+                    <p className="text-sm text-muted-foreground capitalize">{mother?.subscription_status || "Free"}</p>
+                  </div>
+                </div>
+                <Button variant="outline" size="sm">
+                  Upgrade
+                </Button>
+              </div>
+              {mother?.subscription_status === "premium" && mother?.subscription_end_date && (
+                <div className="text-sm text-muted-foreground">
+                  Expires: {new Date(mother.subscription_end_date).toLocaleDateString()}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="border-b pb-4">
+            <h3 className="font-medium mb-4">Support & Help</h3>
+            <div className="space-y-4">
+              <Button variant="ghost" className="w-full justify-start gap-3">
+                <HelpCircle size={20} />
+                <span>Help & Support</span>
+              </Button>
+              <Button variant="ghost" className="w-full justify-start gap-3">
+                <Shield size={20} />
+                <span>Privacy Policy</span>
+              </Button>
+              <Button variant="ghost" className="w-full justify-start gap-3">
+                <Star size={20} />
+                <span>Rate App</span>
+              </Button>
             </div>
           </div>
 
