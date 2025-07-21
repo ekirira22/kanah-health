@@ -14,6 +14,7 @@ import { MapPin, Baby as BabyIcon, User as UserIcon, Calendar, Phone, Mail, Edit
 import { LocationPicker } from "@/components/location-picker"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { LoadingSpinner } from "@/components/loading-spinner"
+import { BrandedLoader } from "@/components/branded-loader"
 import type { User, Mother, Baby } from "@/lib/types"
 
 export default function Profile() {
@@ -172,7 +173,7 @@ export default function Profile() {
   }
 
   if (isLoading) {
-    return <LoadingSpinner message="Loading profile..." />
+    return <BrandedLoader message="Loading profile..." />
   }
 
   return (

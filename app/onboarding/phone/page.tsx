@@ -9,6 +9,7 @@ import { Logo } from "@/components/logo"
 import { sendOTP, verifyOTP } from "@/lib/auth-utils"
 import { useToast } from "@/components/ui/use-toast"
 import { ChevronLeft } from "lucide-react"
+import { BrandedLoader } from "@/components/branded-loader"
 
 export default function PhoneVerification() {
   const router = useRouter()
@@ -108,6 +109,10 @@ export default function PhoneVerification() {
   const handleResendOTP = () => {
     setOtpSent(false)
     handleSendOTP()
+  }
+
+  if (isLoading) {
+    return <BrandedLoader message={otpSent ? "Verifying code..." : "Sending code..."} />
   }
 
   return (

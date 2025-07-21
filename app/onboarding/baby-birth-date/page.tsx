@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { LanguageToggle } from "@/components/language-toggle"
 import { Calendar, Plus, Minus } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { BrandedLoader } from "@/components/branded-loader"
 
 export default function BabyBirthDate() {
   const router = useRouter()
@@ -75,6 +76,10 @@ export default function BabyBirthDate() {
 
   const handleBack = () => {
     router.back()
+  }
+
+  if (isLoading) {
+    return <BrandedLoader message="Loading..." />
   }
 
   return (

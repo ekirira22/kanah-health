@@ -10,6 +10,7 @@ import { LanguageToggle } from "@/components/language-toggle"
 import { BottomNav } from "@/components/bottom-nav"
 import { AppHeader } from "@/components/app-header"
 import { useThemeState } from "@/hooks/use-theme"
+import { BrandedLoader } from "@/components/branded-loader"
 
 export default function Settings() {
   const router = useRouter()
@@ -27,7 +28,7 @@ export default function Settings() {
   if (isLoading) {
     return (
       <main className="flex min-h-screen flex-col items-center justify-center">
-        <p>Loading...</p>
+        <BrandedLoader message="Loading settings..." />
       </main>
     )
   }

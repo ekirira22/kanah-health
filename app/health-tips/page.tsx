@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { AppHeader } from "@/components/app-header"
 import { getSupabaseClient } from "@/lib/supabase/client"
-import { LoadingSpinner } from "@/components/loading-spinner"
+import { BrandedLoader } from "@/components/branded-loader"
 import type { HealthTip } from "@/lib/types"
 
 export default function HealthTips() {
@@ -182,7 +182,7 @@ export default function HealthTips() {
       {/* Content */}
       <div className="flex-1 p-4">
         {isLoading ? (
-          <LoadingSpinner message="Loading health tips..." />
+          <BrandedLoader message="Loading health tips..." />
         ) : filteredTips.length === 0 ? (
           <div className="flex justify-center items-center h-40">
             <p className="text-muted-foreground">No health tips found</p>

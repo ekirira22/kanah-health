@@ -9,6 +9,7 @@ import { PasswordInput } from "@/components/password-input"
 import { Logo } from "@/components/logo"
 import { useToast } from "@/components/ui/use-toast"
 import { signUpWithEmail, signInWithGoogle, showEmailVerificationReminder } from "@/lib/auth-utils"
+import { BrandedLoader } from "@/components/branded-loader"
 
 export default function SignUp() {
   const [email, setEmail] = useState("")
@@ -136,6 +137,10 @@ export default function SignUp() {
     } finally {
       setIsGoogleLoading(false)
     }
+  }
+
+  if (isLoading) {
+    return <BrandedLoader message="Creating account..." />
   }
 
   return (

@@ -9,6 +9,7 @@ import { AppHeader } from "@/components/app-header"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useAuth } from "@/contexts/auth-context"
 import { LoadingSpinner } from "@/components/loading-spinner"
+import { BrandedLoader } from "@/components/branded-loader"
 import { getSupabaseClient } from "@/lib/supabase/client"
 import type { Appointment, HealthWorker, User } from "@/lib/types"
 import { format, isToday, isYesterday, isAfter, isBefore, differenceInCalendarDays, parseISO } from "date-fns"
@@ -105,15 +106,20 @@ export default function Appointments() {
   const upcomingAppointments = appointments.filter((a) => a.status === "upcoming")
   const pastAppointments = appointments.filter((a) => a.status === "completed")
 
+  if (loading) {
+    return (
+      <main className="flex min-h-screen flex-col items-center justify-center">
+        <BrandedLoader message="Loading appointments..." />
+      </main>
+    )
+  }
+
   return (
     <main className="flex min-h-screen flex-col pb-16">
       <AppHeader title="Appointments" showBack />
 
       {/* Content */}
       <div className="flex-1 p-4">
-        {loading ? (
-          <LoadingSpinner message="Loading appointments..." />
-        ) : (
         <Tabs defaultValue="upcoming" className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-4">
             <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
@@ -208,7 +214,6 @@ export default function Appointments() {
             )}
           </TabsContent>
         </Tabs>
-        )}
       </div>
 
       <BottomNav />

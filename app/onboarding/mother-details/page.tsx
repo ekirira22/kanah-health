@@ -8,6 +8,7 @@ import { LanguageToggle } from "@/components/language-toggle"
 import { PasswordInput } from "@/components/password-input"
 import { getSupabaseClient } from "@/lib/supabase/client"
 import { toast } from "@/components/ui/use-toast"
+import { BrandedLoader } from "@/components/branded-loader"
 
 export default function MotherDetails() {
   const router = useRouter()
@@ -182,6 +183,10 @@ export default function MotherDetails() {
 
   const handleBack = () => {
     router.back()
+  }
+
+  if (isLoading) {
+    return <BrandedLoader message="Loading..." />
   }
 
   return (

@@ -10,6 +10,7 @@ import Link from "next/link"
 import { useToast } from "@/components/ui/use-toast"
 import { signInWithEmail, signInWithGoogle, isEmailVerified, showEmailVerificationReminder } from "@/lib/auth-utils"
 import { getSupabaseClient } from "@/lib/supabase/client"
+import { BrandedLoader } from "@/components/branded-loader"
 
 interface UserData {
   id: string
@@ -188,6 +189,10 @@ export default function Login() {
     } finally {
       setIsGoogleLoading(false)
     }
+  }
+
+  if (isLoading) {
+    return <BrandedLoader message="Logging in..." />
   }
 
   return (

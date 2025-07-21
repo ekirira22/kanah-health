@@ -12,6 +12,7 @@ import { Heart, Phone, BookOpen, BarChart3, NotebookPen } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
 import { getSupabaseClient } from "@/lib/supabase/client"
 import type { AutomatedReminder, Advertisement } from "@/lib/types"
+import { BrandedLoader } from "@/components/branded-loader"
 
 export default function Dashboard() {
   const { user, mother, isLoading } = useAuth()
@@ -125,10 +126,7 @@ export default function Dashboard() {
   if (isLoading || isLoadingData) {
     return (
       <main className="flex min-h-screen flex-col items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          <p className="text-muted-foreground">Loading your dashboard...</p>
-        </div>
+        <BrandedLoader message="Loading your dashboard..." />
       </main>
     )
   }

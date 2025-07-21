@@ -7,6 +7,7 @@ import { LanguageToggle } from "@/components/language-toggle"
 import { createNewUser } from "@/lib/auth-utils"
 import { toast } from "@/components/ui/use-toast"
 import { getSupabaseClient } from "@/lib/supabase/client"
+import { BrandedLoader } from "@/components/branded-loader"
 
 export default function BirthType() {
   const router = useRouter()
@@ -125,6 +126,10 @@ export default function BirthType() {
 
   const handleBack = () => {
     router.back()
+  }
+
+  if (isLoading) {
+    return <BrandedLoader message="Completing registration..." />
   }
 
   return (

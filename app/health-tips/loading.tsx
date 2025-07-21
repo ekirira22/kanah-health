@@ -1,3 +1,4 @@
+import { BrandedLoader } from "@/components/branded-loader"
 export default function Loading() {
-  return null
+  return <BrandedLoader message="Loading health tips..." />
 }
