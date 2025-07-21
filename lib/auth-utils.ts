@@ -125,9 +125,9 @@ export async function createNewUser(userData: {
   phoneNumber: string
   fullName: string
   email: string
-  location: string
   birthType: "vaginal" | "c_section"
-  babyBirthDate: string
+  numberOfBabies: number
+  babyBirthDates: string[]
   language?: "english" | "swahili"
 }) {
   try {
@@ -165,7 +165,7 @@ export async function createNewUser(userData: {
     if (userError) throw userError
     if (!newUser) throw new Error("Failed to create user")
 
-    // Create mother record
+    // Create mother record (location moved to user table)
     const { data: newMother, error: motherError } = await supabase
       .from("mothers")
       .insert({
@@ -173,8 +173,6 @@ export async function createNewUser(userData: {
         birth_type: userData.birthType,
         subscription_status: "free",
         language_preference: userData.language || "english",
-        latitude: 0, // Placeholder
-        longitude: 0 // Placeholder
       })
       .select()
       .single() as { data: Mother | null, error: any }
@@ -182,13 +180,16 @@ export async function createNewUser(userData: {
     if (motherError) throw motherError
     if (!newMother) throw new Error("Failed to create mother record")
 
-    // Create baby record
+    // Create baby records for multiple babies
+    const babyRecords = userData.babyBirthDates.map((birthDate, index) => ({
+      mother_id: newMother.id,
+      birth_date: birthDate,
+      baby_number: index + 1
+    }))
+
     const { error: babyError } = await supabase
       .from("babies")
-      .insert({
-        mother_id: newMother.id,
-        birth_date: userData.babyBirthDate,
-      }) as { data: Baby | null, error: any }
+      .insert(babyRecords) as { data: Baby[] | null, error: any }
 
     if (babyError) throw babyError
 

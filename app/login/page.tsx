@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { LanguageToggle } from "@/components/language-toggle"
+import { Logo } from "@/components/logo"
 import Link from "next/link"
 import { useToast } from "@/components/ui/use-toast"
 import { signInWithEmail, signInWithGoogle, isEmailVerified, showEmailVerificationReminder } from "@/lib/auth-utils"
@@ -197,7 +198,10 @@ export default function Login() {
         </div>
 
         <div className="py-8">
-          <h1 className="text-2xl font-bold text-primary text-center mb-2">Welcome Back</h1>
+          <div className="flex flex-col items-center mb-6">
+            <Logo variant="horizontal" className="mb-4" />
+            <h1 className="text-2xl font-bold text-primary text-center">Welcome Back</h1>
+          </div>
           <p className="text-center text-muted-foreground mb-6">Login to continue your journey</p>
 
           <form onSubmit={handleLogin} className="space-y-4">

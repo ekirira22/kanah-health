@@ -15,7 +15,7 @@ export default function MotherDetails() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
-  const [location, setLocation] = useState("")
+
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
 
@@ -56,16 +56,6 @@ export default function MotherDetails() {
       toast({
         title: "Missing Information",
         description: "Please confirm your password.",
-        variant: "destructive",
-      })
-      return false
-    }
-
-    if (!location.trim()) {
-      setError("Location is required")
-      toast({
-        title: "Missing Information",
-        description: "Please enter your location.",
         variant: "destructive",
       })
       return false
@@ -168,7 +158,6 @@ export default function MotherDetails() {
       // Store details in session storage
       sessionStorage.setItem("temp_mother_name", fullName)
       sessionStorage.setItem("temp_mother_email", email)
-      sessionStorage.setItem("temp_mother_location", location)
       sessionStorage.setItem("temp_auth_user_id", authData.user.id)
 
       toast({
@@ -272,18 +261,7 @@ export default function MotherDetails() {
               />
             </div>
 
-            <div>
-              <label htmlFor="location" className="text-sm font-medium mb-1 block">
-                Location <span className="text-destructive">*</span>
-              </label>
-              <Input
-                id="location"
-                placeholder="Enter your location"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                required
-              />
-            </div>
+
 
             {error && (
               <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-md">

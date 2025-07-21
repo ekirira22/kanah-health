@@ -4,7 +4,10 @@ export interface User {
   phone_number: string
   full_name: string
   email: string
-  user_type: 'mother'
+  user_type: 'mother' | 'health_worker' | 'admin'
+  email_verified: boolean
+  latitude: number | null
+  longitude: number | null
   created_at: string
   updated_at: string
 }
@@ -16,8 +19,6 @@ export interface Mother {
   subscription_status: 'free' | 'premium'
   subscription_end_date: string | null
   language_preference: 'english' | 'swahili'
-  latitude: number | null
-  longitude: number | null
   created_at: string
   updated_at: string
 }
@@ -26,6 +27,7 @@ export interface Baby {
   id: string
   mother_id: string
   birth_date: string
+  baby_number: number // For twins/triplets (1, 2, 3, etc.)
   created_at: string
   updated_at: string
 }
@@ -36,8 +38,6 @@ export interface HealthWorker {
   worker_type: 'doctor' | 'nurse' | 'community_health_worker' | 'midwife'
   available_for_visits: boolean
   available_for_calls: boolean
-  latitude: number | null
-  longitude: number | null
   max_daily_visits: number
   avg_rating: number
   reviews: number

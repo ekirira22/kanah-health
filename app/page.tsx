@@ -12,7 +12,7 @@ export default function Home() {
         </div>
 
         <div className="flex flex-col items-center justify-center py-8">
-          <Logo />
+          <Logo variant="vertical" className="mb-4" />
           <p className="text-center mt-4 text-muted-foreground">Your postnatal health companion</p>
 
           <div className="w-full space-y-4 mt-8">

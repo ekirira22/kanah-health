@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { LanguageToggle } from "@/components/language-toggle"
+import { Logo } from "@/components/logo"
 import { sendOTP, verifyOTP } from "@/lib/auth-utils"
 import { useToast } from "@/components/ui/use-toast"
 import { ChevronLeft } from "lucide-react"
@@ -128,7 +129,10 @@ export default function PhoneVerification() {
         </div>
 
         <div className="py-8">
-          <h1 className="text-2xl font-bold text-primary text-center mb-2">Welcome to Kanah Health</h1>
+          <div className="flex flex-col items-center mb-6">
+            <Logo variant="horizontal" className="mb-4" />
+            <h1 className="text-2xl font-bold text-primary text-center">Welcome to Kanah Health</h1>
+          </div>
           <div className="flex items-center justify-between mb-6">
             <p className="text-sm text-muted-foreground">Step 1 of 4</p>
             <div className="w-full max-w-[200px] h-2 bg-gray-200 rounded-full ml-4">

@@ -19,7 +19,7 @@ import type { User, Mother, Baby } from "@/lib/types"
 export default function Profile() {
   const { user, mother, isLoading, refreshUser } = useAuth()
   const [isEditing, setIsEditing] = useState(false)
-  const [baby, setBaby] = useState<Baby | null>(null)
+  const [babies, setBabies] = useState<Baby[]>([])
   const [location, setLocation] = useState("")
   const [formData, setFormData] = useState({
     full_name: "",
@@ -38,20 +38,20 @@ export default function Profile() {
       try {
         const supabase = getSupabaseClient()
         
-        // Fetch baby data
-        const { data: babyData } = await supabase
+        // Fetch baby data (support multiple babies)
+        const { data: babiesData } = await supabase
           .from("babies")
           .select("*")
           .eq("mother_id", mother.id)
-          .single() as { data: Baby | null }
+          .order("baby_number", { ascending: true }) as { data: Baby[] | null }
 
-        setBaby(babyData)
+        setBabies(babiesData || [])
 
-        // Fetch location from coordinates
-        if (mother.latitude && mother.longitude) {
+        // Fetch location from coordinates (now in user table)
+        if (user.latitude && user.longitude) {
           try {
             const response = await fetch(
-              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${mother.latitude}&lon=${mother.longitude}&zoom=10&addressdetails=1`
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${user.latitude}&lon=${user.longitude}&zoom=10&addressdetails=1`
             )
             const data = await response.json()
             if (data.display_name) {
@@ -73,8 +73,8 @@ export default function Profile() {
           phone_number: user.phone_number,
           language_preference: mother.language_preference,
           birth_type: mother.birth_type,
-          latitude: mother.latitude || 0,
-          longitude: mother.longitude || 0,
+          latitude: user.latitude || 0,
+          longitude: user.longitude || 0,
         })
       } catch (error) {
         console.error("Error fetching profile data:", error)
@@ -108,26 +108,26 @@ export default function Profile() {
     try {
       const supabase = getSupabaseClient()
 
-      // Update user table
+      // Update user table (including location)
       const { error: userError } = await supabase
         .from("users")
         .update({
           full_name: formData.full_name || "",
           email: formData.email || "",
           phone_number: formData.phone_number || "",
+          latitude: formData.latitude,
+          longitude: formData.longitude,
         })
         .eq("id", user.id)
 
       if (userError) throw userError
 
-      // Update mother table
+      // Update mother table (location moved to user table)
       const { error: motherError } = await supabase
         .from("mothers")
         .update({
           language_preference: formData.language_preference || "english",
           birth_type: formData.birth_type || "vaginal",
-          latitude: formData.latitude,
-          longitude: formData.longitude,
         })
         .eq("id", mother.id)
 
@@ -162,9 +162,10 @@ export default function Profile() {
       // Refresh user data in context to update dashboard and other components
       await refreshUser()
     } catch (error: any) {
+      console.error("Profile update error:", error)
       toast({
         title: "Update failed",
-        description: error.message || "Failed to update profile",
+        description: error.message || "Failed to update profile. Please check if your database has the latitude and longitude columns in the users table.",
         variant: "destructive",
       })
     }
@@ -291,34 +292,50 @@ export default function Profile() {
         </Card>
 
         {/* Baby Information Card */}
-        {baby && (
+        {babies.length > 0 && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <BabyIcon size={20} />
                 Baby Information
+                {babies.length > 1 && (
+                  <span className="text-sm text-muted-foreground ml-2">
+                    ({babies.length} {babies.length === 2 ? 'Twins' : babies.length === 3 ? 'Triplets' : `${babies.length} Babies`})
+                  </span>
+                )}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <Calendar size={16} className="text-muted-foreground" />
-                  <div>
-                    <p className="text-sm font-medium">Birth Date</p>
-                    <p className="text-sm text-muted-foreground">
-                      {new Date(baby.birth_date).toLocaleDateString()}
-                    </p>
+                {babies.map((baby, index) => (
+                  <div key={baby.id} className="border rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="font-medium">
+                        {babies.length > 1 ? `Baby ${baby.baby_number}` : 'Baby'}
+                      </h4>
+                    </div>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3">
+                        <Calendar size={16} className="text-muted-foreground" />
+                        <div>
+                          <p className="text-sm font-medium">Birth Date</p>
+                          <p className="text-sm text-muted-foreground">
+                            {new Date(baby.birth_date).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Calendar size={16} className="text-muted-foreground" />
+                        <div>
+                          <p className="text-sm font-medium">Age</p>
+                          <p className="text-sm text-muted-foreground">
+                            {Math.floor((new Date().getTime() - new Date(baby.birth_date).getTime()) / (1000 * 60 * 60 * 24))} days old
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Calendar size={16} className="text-muted-foreground" />
-                  <div>
-                    <p className="text-sm font-medium">Age</p>
-                    <p className="text-sm text-muted-foreground">
-                      {Math.floor((new Date().getTime() - new Date(baby.birth_date).getTime()) / (1000 * 60 * 60 * 24))} days old
-                    </p>
-                  </div>
-                </div>
+                ))}
               </div>
             </CardContent>
           </Card>

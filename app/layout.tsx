@@ -18,22 +18,22 @@ export const metadata: Metadata = {
     title: "Kanah Health",
     startupImage: [
       {
-        url: "/icons/icon-512x512.png",
+        url: "/logo.png",
         media: "(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)",
       },
       {
-        url: "/icons/icon-512x512.png",
+        url: "/logo.png",
         media: "(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)",
       },
       {
-        url: "/icons/icon-512x512.png",
+        url: "/logo.png",
         media: "(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3)",
       },
     ],
   },
   icons: {
-    icon: "/icons/icon-192x192.png",
-    apple: "/icons/icon-192x192.png",
+    icon: "/logo.png",
+    apple: "/logo.png",
   },
   other: {
     "apple-mobile-web-app-capable": "yes",
@@ -62,8 +62,8 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Kanah Health" />
-        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
-        <link rel="apple-touch-startup-image" href="/icons/icon-512x512.png" />
+        <link rel="apple-touch-icon" href="/logo.png" />
+        <link rel="apple-touch-startup-image" href="/logo.png" />
       </head>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>

@@ -54,7 +54,7 @@ export default function Dashboard() {
             .limit(2)
         ])
 
-        // Calculate days since birth
+        // Calculate days since birth (use first baby for now)
         if (babyData?.birth_date) {
           const birthDate = new Date(babyData.birth_date as string)
           const today = new Date()

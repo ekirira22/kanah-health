@@ -1,6 +1,7 @@
 "use client"
 
 import { Loader2 } from "lucide-react"
+import { Logo } from "./logo"
 
 interface LoadingSpinnerProps {
   message?: string
@@ -37,7 +38,7 @@ export function PageLoader({ message = "Loading page..." }: { message?: string }
           <div className="absolute inset-0 h-16 w-16 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
         </div>
         <div className="text-center space-y-2">
-          <h2 className="text-xl font-semibold text-foreground">Kanah Health</h2>
+          <Logo variant="horizontal" className="mb-2" />
           <p className="text-sm text-muted-foreground animate-pulse">{message}</p>
         </div>
       </div>

@@ -6,6 +6,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { PasswordInput } from "@/components/password-input"
+import { Logo } from "@/components/logo"
 import { useToast } from "@/components/ui/use-toast"
 import { signUpWithEmail, signInWithGoogle, showEmailVerificationReminder } from "@/lib/auth-utils"
 
@@ -141,7 +142,10 @@ export default function SignUp() {
     <main className="flex min-h-screen flex-col items-center justify-center p-6 bg-secondary/30">
       <div className="w-full max-w-md bg-white rounded-lg shadow-sm p-6">
         <div className="py-8">
-          <h1 className="text-2xl font-bold text-primary text-center mb-2">Create an Account</h1>
+          <div className="flex flex-col items-center mb-6">
+            <Logo variant="horizontal" className="mb-4" />
+            <h1 className="text-2xl font-bold text-primary text-center">Create an Account</h1>
+          </div>
           <p className="text-center text-muted-foreground mb-6">
             Enter your details below to create your account
           </p>

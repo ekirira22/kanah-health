@@ -78,14 +78,16 @@ export default function BirthType() {
       // Get stored user details
       const fullName = sessionStorage.getItem("temp_mother_name")
       const email = sessionStorage.getItem("temp_mother_email")
-      const location = sessionStorage.getItem("temp_mother_location")
       const authUserId = sessionStorage.getItem("temp_auth_user_id")
       const phoneNumber = sessionStorage.getItem("temp_phone_number")
-      const babyBirthDate = sessionStorage.getItem("temp_baby_birth_date")
+      const numberOfBabies = sessionStorage.getItem("temp_number_of_babies")
+      const babyBirthDates = sessionStorage.getItem("temp_baby_birth_dates")
 
-      if (!fullName || !email || !location || !authUserId || !phoneNumber || !babyBirthDate) {
+      if (!fullName || !email || !authUserId || !phoneNumber || !numberOfBabies || !babyBirthDates) {
         throw new Error("Missing user information. Please start the registration process again.")
       }
+
+      const birthDates = JSON.parse(babyBirthDates)
 
       // Create user in custom table
       await createNewUser({
@@ -93,9 +95,9 @@ export default function BirthType() {
         phoneNumber,
         fullName,
         email,
-        location,
         birthType: selectedType === "natural" ? "vaginal" : "c_section",
-        babyBirthDate,
+        numberOfBabies: parseInt(numberOfBabies),
+        babyBirthDates: birthDates,
         language: "english"
       })
 

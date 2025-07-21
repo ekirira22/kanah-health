@@ -5,11 +5,13 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { LanguageToggle } from "@/components/language-toggle"
-import { Calendar } from "lucide-react"
+import { Calendar, Plus, Minus } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 export default function BabyBirthDate() {
   const router = useRouter()
-  const [birthDate, setBirthDate] = useState("")
+  const [numberOfBabies, setNumberOfBabies] = useState(1)
+  const [birthDates, setBirthDates] = useState<string[]>([""])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [phoneNumber, setPhoneNumber] = useState<string | null>(null)
@@ -26,9 +28,30 @@ export default function BabyBirthDate() {
     }
   }, [router])
 
+  const handleNumberOfBabiesChange = (value: string) => {
+    const num = parseInt(value)
+    setNumberOfBabies(num)
+    
+    // Update birth dates array
+    if (num > birthDates.length) {
+      // Add new empty birth dates
+      setBirthDates([...birthDates, ...Array(num - birthDates.length).fill("")])
+    } else if (num < birthDates.length) {
+      // Remove extra birth dates
+      setBirthDates(birthDates.slice(0, num))
+    }
+  }
+
+  const handleBirthDateChange = (index: number, value: string) => {
+    const newBirthDates = [...birthDates]
+    newBirthDates[index] = value
+    setBirthDates(newBirthDates)
+  }
+
   const handleNext = async () => {
-    if (!birthDate) {
-      setError("Please enter your baby's birth date")
+    // Validate that birth date is filled
+    if (!birthDates[0]) {
+      setError("Please enter your babies' birth date")
       return
     }
 
@@ -36,8 +59,10 @@ export default function BabyBirthDate() {
     setError("")
 
     try {
-      // Store birth date in session storage
-      sessionStorage.setItem("temp_baby_birth_date", birthDate)
+      // Store birth date in session storage (same date for all babies)
+      const allBirthDates = Array(numberOfBabies).fill(birthDates[0])
+      sessionStorage.setItem("temp_number_of_babies", numberOfBabies.toString())
+      sessionStorage.setItem("temp_baby_birth_dates", JSON.stringify(allBirthDates))
 
       // Navigate to next step
       router.push("/onboarding/birth-type")
@@ -62,22 +87,45 @@ export default function BabyBirthDate() {
         <div className="py-8">
           <h1 className="text-2xl font-bold text-primary text-center mb-2">Let&apos;s get to know you</h1>
           <div className="flex items-center justify-between mb-6">
-            <p className="text-sm text-muted-foreground">Step 2 of 4</p>
+            <p className="text-sm text-muted-foreground">Step 3 of 4</p>
             <div className="w-full max-w-[200px] h-2 bg-gray-200 rounded-full ml-4">
-              <div className="h-full bg-primary rounded-full" style={{ width: "50%" }}></div>
+              <div className="h-full bg-primary rounded-full" style={{ width: "75%" }}></div>
             </div>
           </div>
 
-          <p className="mb-4">When was your baby born?</p>
+          <p className="mb-4">How many babies do you have?</p>
+          <div className="mb-6">
+            <Select value={numberOfBabies.toString()} onValueChange={handleNumberOfBabiesChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select number of babies" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1">1 Baby</SelectItem>
+                <SelectItem value="2">2 Babies (Twins)</SelectItem>
+                <SelectItem value="3">3 Babies (Triplets)</SelectItem>
+                <SelectItem value="4">4 Babies (Quadruplets)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <p className="mb-4">When were your babies born?</p>
           <div className="relative mb-6">
+            <label className="text-sm font-medium mb-2 block">
+              Birth Date
+            </label>
             <Input
               type="date"
-              value={birthDate}
-              onChange={(e) => setBirthDate(e.target.value)}
+              value={birthDates[0]}
+              onChange={(e) => handleBirthDateChange(0, e.target.value)}
               className="w-full pr-10"
             />
             <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
           </div>
+          {numberOfBabies > 1 && (
+            <p className="text-sm text-muted-foreground mb-6">
+              All {numberOfBabies} babies were born on the same day
+            </p>
+          )}
 
           <p className="text-sm text-muted-foreground mb-6">This helps us personalize your care journey</p>
 
