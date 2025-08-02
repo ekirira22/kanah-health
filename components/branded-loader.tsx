@@ -1,3 +1,4 @@
+"use client"
 import { Logo } from "./logo"
 
 export function BrandedLoader({ message = "Loading..." }: { message?: string }) {

@@ -219,13 +219,13 @@ export default function Appointments() {
       <BottomNav />
 
       {/* Floating Book Appointment Button */}
-      <button
+      {/* <button
         onClick={handleBookAppointment}
         aria-label="Book Appointment"
         className="fixed bottom-10 left-4 z-50 flex items-center justify-center w-20 h-20 rounded-full bg-primary text-white text-4xl transition-transform duration-200 hover:scale-110 focus:outline-none focus:ring-4 focus:ring-primary/30 border-4 pulsate-wave"
       >
         <ClipboardPlus size={30} />
-      </button>
+      </button> */}
     </main>
   )
 }
