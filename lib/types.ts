@@ -48,15 +48,15 @@ export interface HealthWorker {
 export interface Appointment {
   id: string
   mother_id: string
-  health_worker_id: string
-  appointment_type: 'video' | 'visit'
-  status: string
-  location: string
-  scheduled_time: string
+  health_worker_id: string | null
+  appointment_type: 'video_call' | 'visitation' | null
+  status: 'unconfirmed' | 'scheduled' | 'in_progress' | 'completed' | 'canceled'
+  location: string | null
+  scheduled_time: string | null
   payment_status: 'pending' | 'paid' | 'refunded'
   payment_amount: number
-  payment_reference: string | null
-  scheduled_duration_minutes: number
+  payment_reference: string
+  scheduled_duration_minutes: number | null
   notes: string | null
   link: string | null
   created_at: string

@@ -9,7 +9,10 @@ import { BottomNav } from "@/components/bottom-nav"
 import { AppHeader } from "@/components/app-header"
 import { getSupabaseClient } from "@/lib/supabase/client"
 import { LoadingSpinner } from "@/components/loading-spinner"
-import type { HealthWorker, User } from "@/lib/types"
+import { BookingModal } from "@/components/booking-modal"
+import { useToast } from "@/components/ui/use-toast"
+import type { HealthWorker, User, Appointment } from "@/lib/types"
+import { describe } from "node:test"
 
 interface HealthWorkerWithUser extends HealthWorker {
   user: User
@@ -38,6 +41,7 @@ const pricingMap: Record<AppointmentType, PricingInfo> = {
 
 export default function BookAppointment() {
   const router = useRouter()
+  const { toast } = useToast()
   const [selectedType, setSelectedType] = useState<AppointmentType>("visitation")
   const [healthWorkers, setHealthWorkers] = useState<HealthWorkerWithUser[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -47,15 +51,107 @@ export default function BookAppointment() {
   const [isPrompting, setIsPrompting] = useState(false)
   const [paymentConfirmed, setPaymentConfirmed] = useState(false)
   const [paymentRef, setPaymentRef] = useState("")
+  const [paymentAmount, setPaymentAmount] = useState(0)
   const [userLocation, setUserLocation] = useState<{latitude: number, longitude: number} | null>(null)
   const [locationNames, setLocationNames] = useState<Map<string, string>>(new Map())
   const [loadingLocations, setLoadingLocations] = useState<Set<string>>(new Set())
   const [isSorting, setIsSorting] = useState(false)
+  const [showBookingModal, setShowBookingModal] = useState(false)
+  const [selectedHealthWorker, setSelectedHealthWorker] = useState<HealthWorkerWithUser | null>(null)
+  const [motherId, setMotherId] = useState<string>("")
+  const [unconfirmedVisitations, setUnconfirmedVisitations] = useState<Appointment[]>([])
+  const [unconfirmedVideocalls, setUnconfirmedVideocalls] = useState<Appointment[]>([])
 
   useEffect(() => {
     fetchHealthWorkers()
     getUserLocation()
+    getCurrentUserMotherId()
   }, [selectedType])
+
+  // Get Mothers ID from mother's table. i.e current user logged in
+  const getCurrentUserMotherId = async () => {
+    try {
+      const supabase = getSupabaseClient()
+      
+      // Get current user
+      const { data: { user }, error: userError } = await supabase.auth.getUser()
+      
+      if (userError || !user) {
+        console.error('Error getting current user:', userError)
+        return
+      }
+
+      // Get mother record for current user
+      const { data: motherData, error: motherError } = await supabase
+        .from('mothers')
+        .select('id')
+        .eq('user_id', user.id)
+        .single()
+
+      if (motherError) {
+        console.error('Error getting mother record:', motherError)
+        return
+      }
+
+      if (motherData) {
+        setMotherId(motherData.id as string)
+      }
+    } catch (error) {
+      console.error('Error getting mother ID:', error)
+    }
+  }
+
+  // Fetch unconfirmed appointments for current user mother and split by type i.e visitation or video_call
+  const fetchUnconfirmedAppointments = async () => {
+    if (!motherId) return
+    const supabase = getSupabaseClient()
+
+    //fetch all unconfirmed for this mother
+    const { data: unconfirmedAppts, error: unconfirmedErr } = await supabase
+      .from('appointments')
+      .select('*') 
+      .eq('mother_id', motherId)
+      .eq('status', 'unconfirmed')
+      .order('created_at', { ascending: false }) as { data:Appointment[] | null, error: unknown }
+
+    if(unconfirmedErr) {
+      console.error('Error fetching unconfirmed appointments')
+    }
+
+    if (!unconfirmedAppts) return
+
+    setUnconfirmedVisitations(unconfirmedAppts.filter(a => a.appointment_type === "visitation"))
+    setUnconfirmedVideocalls(unconfirmedAppts.filter(a => a.appointment_type === "video_call"))
+    
+  }
+
+  // Add a helper to derive paymentConfirmed and paymentRef from current selected Type
+
+  const syncPaymentStateFromUnconfirmed = () => {
+    if (selectedType === 'visitation') {
+      const appt = unconfirmedVisitations[0]
+      setPaymentConfirmed(!!appt)
+      setPaymentRef(appt?.payment_reference || '')
+      setPaymentAmount(appt?.payment_amount)
+    } else {
+      const appt = unconfirmedVideocalls[0]
+      setPaymentConfirmed(!!appt)
+      setPaymentRef(appt?.payment_reference || '')
+      setPaymentAmount(appt?.payment_amount)
+    }
+  }
+
+  // Fetch unconfirmed appointments as soon as we have motherID 
+  useEffect(() => {
+    if (motherId) {
+      fetchUnconfirmedAppointments()
+    }
+  }, [motherId])
+
+  //Recompute payment state whenever the service or the list changes
+  useEffect(() => {
+    syncPaymentStateFromUnconfirmed()
+  }, [selectedType, unconfirmedVisitations, unconfirmedVideocalls])
 
   // Pre-fetch location names for all health workers
   useEffect(() => {
@@ -106,6 +202,8 @@ export default function BookAppointment() {
       }, 100)
     }
   }, [userLocation, healthWorkers.length])
+
+  // ############################### HELPERS #######################################
 
   const getUserLocation = () => {
     if (navigator.geolocation) {
@@ -229,28 +327,6 @@ export default function BookAppointment() {
     }
   }
 
-  const handlePayment = () => {
-    setIsProcessingPayment(true)
-    setShowPhoneInput(true)
-    setIsProcessingPayment(false)
-  }
-
-  const handlePrompt = async () => {
-    if (!phoneNumber || phoneNumber.length <= 10) {
-      alert("Please enter a valid phone number")
-      return
-    }
-
-    setIsPrompting(true)
-    
-    // Simulate M-Pesa API call
-    setTimeout(() => {
-      setIsPrompting(false)
-      setPaymentConfirmed(true)
-      setPaymentRef("THGUJBHGY6") // Generate a random reference
-    }, 5000)
-  }
-
   const getWorkerTypeDisplay = (workerType: string) => {
     switch (workerType) {
       case 'doctor':
@@ -267,6 +343,7 @@ export default function BookAppointment() {
   }
 
   const currentPricing = pricingMap[selectedType]
+  const getAmountForType = (type: AppointmentType) => (type === 'visitation') ? 1500 : 1000
 
   // Get no. of stars
   const getStars = (n: number) => {
@@ -344,6 +421,12 @@ export default function BookAppointment() {
       
       if (!response.ok) {
         throw new Error('Failed to fetch location data')
+        toast({
+          title : "Location not found!",
+          description: "We cannot fetch location at this time. Try again later",
+          variant: "destructive"
+        })
+
       }
       
       const data = await response.json()
@@ -367,6 +450,150 @@ export default function BookAppointment() {
       return "Location unavailable"
     }
   }
+
+  // ############################### HELPERS #######################################
+
+  // ############################### MPESA GATEWAY #################################
+
+  const alertUser = () => {
+    console.log("Clicked")
+    if (!paymentConfirmed) {
+      toast({
+        title: "Payment Required",
+        description: "To make a booking you will have to pay first",
+        variant: "destructive"
+       })
+       return
+    }
+  }
+  const handlePrompt = () => {
+    setIsProcessingPayment(true)
+    setShowPhoneInput(true)
+    setIsProcessingPayment(false)
+  }
+
+  const generateTransactionCode = () => {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    return Array.from({length:10}, () => chars[Math.floor(Math.random() * chars.length)]).join('')
+  }
+
+  const handlePayment = async () => {
+    if (!phoneNumber || phoneNumber.length != 10) {
+      toast({
+        title: "Invalid Phone Number",
+        description: "Please enter a valid phone number",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (!motherId) {
+      toast({
+        title: "Profile not found",
+        description: "User profile not found. Please ensure you're logged in as a mother.User profile not found. Please ensure you're logged in as a mother.",
+        variant: "destructive"
+      })
+      return
+    }
+
+    setIsPrompting(true)
+
+    //Capture values at moment of payment to avoid race conditions in case user switches tabs
+    const typeAtPaymentClick = selectedType
+    const amountAtPaymentClick = getAmountForType(typeAtPaymentClick)
+    const transactionCode = `${generateTransactionCode()}`
+    
+    // Next Steps: Simulate M-Pesa API call here
+
+    const supabase = getSupabaseClient()
+
+    try {
+      // See if we already have unconfirmed appointments for this type:
+      const { data: existingAppts, error: fetchApptError } = await supabase
+        .from('appointments')
+        .select('id')
+        .eq('mother_id', motherId)
+        .eq('status', 'unconfirmed')
+        .eq('appointment_type', typeAtPaymentClick)
+        .order('created_at', { ascending: false }) as { data: Appointment[] | null, error: unknown }
+
+      if (fetchApptError) {
+        console.error('Error checking existing unconfirmed appointment:', fetchApptError)
+        toast({
+          title: "Connection failed",
+          description: "Please try again later",
+          variant: "destructive"
+        })
+        return
+      }
+
+      const existing = (existingAppts && existingAppts.length > 0) ? existingAppts : null
+
+      if (existing) {
+        // If a payment(s) exists, a payment was made, update state
+        typeAtPaymentClick === 'visitation' ? setUnconfirmedVisitations(existing) : setUnconfirmedVideocalls(existing)
+        toast({
+          title: "Payment alreay made!",
+          description: "We have detected that a payment was already made. Please proceed to Booking"
+        })
+        return
+      } else {
+        /**
+         * 
+         *  REAL M-PESA INTEGRATION WILL HAPPEN HERE
+         * 
+         */
+
+        // insert a new unconfirmed appointment with payment details
+
+        const { error: insertError } = await supabase
+          .from('appointments')
+          .insert({
+            mother_id: motherId,
+            appointment_type: typeAtPaymentClick,
+            status: 'unconfirmed',
+            payment_status: 'paid',
+            payment_amount: amountAtPaymentClick,
+            payment_reference: transactionCode,
+          })
+
+        if (insertError) {
+          // Reverse Mpesa transaction here if error occurs.
+          // Try 3 times
+          throw new Error('Error creating unconfirmed appointment with payment:', insertError)
+          toast({
+            title: "Payment Received with Warning",
+            description: "Payment succeeded but we couldn't save it properly. We will reverse transaction in 15 min if unsuccesful.",
+            variant: "destructive",
+          })
+        }
+      }
+
+      // Always refresh unconfirmed lists from DB to keep UI state updated"
+      await fetchUnconfirmedAppointments()
+
+      toast({
+        title: "Payment Successful",
+        description: "Your payment has been processed successfully! Proceed to Book.",
+      })
+
+    } catch (err) {
+      console.error('Unexpected error during payment finalization:', err)
+      toast({
+        title: "Payment Unsuccessful",
+        description: `An unexpected error occured: ${err}`,
+        variant: "destructive",
+      })
+    } finally {
+      setTimeout(() => {
+        setIsPrompting(false)
+        setPaymentConfirmed(true)
+        setPaymentRef(transactionCode) // Generate a random transaction reference
+      }, 5000)
+    }
+  }
+
+  // ############################### MPESA GATEWAY #################################
 
   return (
     <main className="flex min-h-screen flex-col">
@@ -442,7 +669,12 @@ export default function BookAppointment() {
           </div>
         </div>
 
-        {/* Payment details */}
+        {/* Payment details 
+        Next Steps:
+        - This section should render dynamically
+        - It should show up when a user has no unassigned appointment that has been paid in each category
+        - This is crucial in case someone pays and are unable to book an appointment
+        */}
         <div className="border rounded-lg p-6 mb-8">
           <h2 className="font-medium mb-4">{currentPricing.title}</h2>
 
@@ -461,13 +693,13 @@ export default function BookAppointment() {
             <p>Payment is secure through M-Pesa. You'll receive a prompt on your phone.</p>
           </div>
 
-          {!showPhoneInput ? (
+          {!showPhoneInput || paymentConfirmed ? (
             <Button
-              onClick={handlePayment}
-              disabled={isProcessingPayment}
+              onClick={handlePrompt}
+              disabled={isProcessingPayment || paymentConfirmed}
               className="w-full mt-4 bg-primary hover:bg-primary/90"
             >
-              {isProcessingPayment ? "Processing..." : "Pay with M-Pesa"}
+              {isProcessingPayment ? "Processing..." : !paymentConfirmed ?  "Pay with M-Pesa" : "Proceed to Book"}
             </Button>
           ) : (
             <div className="mt-4 space-y-3">
@@ -479,8 +711,8 @@ export default function BookAppointment() {
                   className="flex-2"
                 />
                 <Button
-                  onClick={handlePrompt}
-                  disabled={isPrompting || !phoneNumber}
+                  onClick={handlePayment}
+                  disabled={isPrompting || !phoneNumber || phoneNumber.length != 10 }
                   className="flex-1"
                 >
                   {isPrompting ? "Processing..." : "Prompt"}
@@ -499,6 +731,7 @@ export default function BookAppointment() {
                 <div>
                   <div className="font-medium text-green-800">Payment Confirmed</div>
                   <div className="text-sm text-green-700">Ref: {paymentRef}</div>
+                  <div className="text-sm text-green-700">Amount: Ksh {paymentAmount}</div>
                 </div>
               </div>
             </div>
@@ -520,7 +753,7 @@ export default function BookAppointment() {
           </div>
         ) : healthWorkers.length > 0 ? (
            healthWorkers.map((worker, index) => (
-             <div key={worker.id} className="border rounded-lg p-5 mb-5 hover:shadow-md transition-shadow">
+             <div key={worker.id} className="border rounded-lg p-5 mb-5 hover:shadow-md transition-shadow" onClick={alertUser}>
               <div className="flex items-center justify-between">
                                  <div className="flex items-center gap-3">
                    <div className="relative">
@@ -543,19 +776,27 @@ export default function BookAppointment() {
                     </p>
                   </div>
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={!paymentConfirmed}
-                  className="flex items-center gap-2"
-                  onClick={() => {
-                    // TODO: Implement booking form popup
-                    alert(`Booking appointment with ${worker.user.full_name}`)
-                  }}
-                >
-                  <ClipboardPlus size={16} />
-                  Book
-                </Button>
+                <div className="flex flex-col gap-1">
+                   <Button
+                     variant="outline"
+                     size="sm"
+                     disabled={!paymentConfirmed || !motherId}
+                     className="flex items-center gap-2"
+                     onClick={() => {
+                       setSelectedHealthWorker(worker)
+                       setShowBookingModal(true)
+                     }}
+                   >
+                     <ClipboardPlus size={16} />
+                     Book
+                   </Button>
+                   {/* {!paymentConfirmed && (
+                     <p className="text-xs text-muted-foreground">Complete payment first</p>
+                   )}
+                   {!motherId && (
+                     <p className="text-xs text-muted-foreground">Profile not found</p>
+                   )} */}
+                 </div>
               </div>
             </div>
           ))
@@ -568,8 +809,30 @@ export default function BookAppointment() {
         )}
       </div>
 
-      {/* Bottom Navigation */}
-      <BottomNav />
-    </main>
-  )
+             {/* Bottom Navigation */}
+       <BottomNav />
+
+       {/* Booking Modal */}
+       {selectedHealthWorker && (
+         <BookingModal
+           isOpen={showBookingModal}
+           onClose={() => {
+             setShowBookingModal(false)
+             setSelectedHealthWorker(null)
+           }}
+           healthWorker={selectedHealthWorker}
+           userLocation={userLocation}
+           selectedType={selectedType}
+           motherId={motherId}
+           onBookingSuccess={() => {
+             // Reset payment confirmation after successful booking
+             setPaymentConfirmed(false)
+             setPaymentRef("")
+             setShowPhoneInput(false)
+             setPhoneNumber("")
+           }}
+         />
+       )}
+     </main>
+   )
 }

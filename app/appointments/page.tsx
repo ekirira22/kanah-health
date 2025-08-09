@@ -156,9 +156,8 @@ export default function Appointments() {
                     </div>
                     <div className="flex gap-2">
                       <Button className="flex-1 bg-primary hover:bg-primary/90">Call</Button>
-                      <Button variant="outline" className="flex-1">
-                        Reschedule
-                      </Button>
+                      <Button variant="outline" className="flex-1"> Reschedule </Button>
+                      <Button variant="outline" className="flex-1 bg-red-500 hover:bg-red-500/90 text-white"> Cancel </Button>
                     </div>
                   </div>
                 ))}
@@ -219,13 +218,13 @@ export default function Appointments() {
       <BottomNav />
 
       {/* Floating Book Appointment Button */}
-      {/* <button
+      <button
         onClick={handleBookAppointment}
         aria-label="Book Appointment"
         className="fixed bottom-10 left-4 z-50 flex items-center justify-center w-20 h-20 rounded-full bg-primary text-white text-4xl transition-transform duration-200 hover:scale-110 focus:outline-none focus:ring-4 focus:ring-primary/30 border-4 pulsate-wave"
       >
         <ClipboardPlus size={30} />
-      </button> */}
+      </button>
     </main>
   )
 }
